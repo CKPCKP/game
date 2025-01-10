@@ -16,6 +16,12 @@ uv sync
 
 ## How to develop
 
+run
+
+```shell
+uv run pyxel run game1.py
+```
+
 format
 
 ```shell
