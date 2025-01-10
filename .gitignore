@@ -1,5 +1,6 @@
 # python
 .python-version
+uv.lock
 
 # for development
 .venv/
