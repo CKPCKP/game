@@ -11,6 +11,7 @@ LASER_LIFETIME = 15
 LASER_LENGTH = 16  # レーザーの最大長さ
 MAX_GRAVITY = 6  # 最大落下速度を設定
 
+
 # プレイヤークラス
 class Player:
     def __init__(self):
@@ -53,6 +54,7 @@ class Player:
         laser = Laser(self.x + 4, self.y + 4, direction)
         self.lasers.append(laser)
 
+
 # レーザークラス
 class Laser:
     def __init__(self, x, y, direction):
@@ -77,7 +79,7 @@ class Laser:
             self.x += LASER_SPEED
 
         # レーザーが一定の長さに達したら停止
-        self.length = min(LASER_LENGTH, self.length+LASER_SPEED)
+        self.length = min(LASER_LENGTH, self.length + LASER_SPEED)
 
         # レーザーの生存時間を1減らす
         self.active -= 1
@@ -95,6 +97,7 @@ class Laser:
             pyxel.line(self.x, self.y, self.x - self.length, self.y, 8)
         elif self.direction == "RIGHT":
             pyxel.line(self.x, self.y, self.x + self.length, self.y, 8)
+
 
 class Block:
     def __init__(self, x, y, width, height):
@@ -119,11 +122,12 @@ class Block:
         block_bottom = self.y + self.height
 
         # 衝突しているか確認
-        if (player.x < block_right and
-            player_right > self.x and
-            player.y < block_bottom and
-            player_bottom > self.y):
-
+        if (
+            player.x < block_right
+            and player_right > self.x
+            and player.y < block_bottom
+            and player_bottom > self.y
+        ):
             # 上からの衝突
             if player.y + 8 - player.velocity_y <= self.y:
                 player.y = self.y - 8
@@ -142,15 +146,16 @@ class Block:
             elif player.x - PLAYER_SPEED <= block_right:
                 player.x = block_right
 
+
 # ゲームクラス
 class Game:
     def __init__(self):
         pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=30, title="Laser Shooting Game")
         self.player = Player()
         self.blocks = [
-            Block(0, SCREEN_HEIGHT-8, SCREEN_WIDTH, 8),
-            Block(32, SCREEN_HEIGHT-40, 8, 8),
-            Block(40, SCREEN_HEIGHT-72, 8, 8),
+            Block(0, SCREEN_HEIGHT - 8, SCREEN_WIDTH, 8),
+            Block(32, SCREEN_HEIGHT - 40, 8, 8),
+            Block(40, SCREEN_HEIGHT - 72, 8, 8),
         ]
         pyxel.run(self.update, self.draw)
 
