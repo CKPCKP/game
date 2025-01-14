@@ -1,9 +1,10 @@
 import pyxel
+from config import GRID_SIZE
 
 class Player:
     def __init__(self, screen_height):
-        self.x = 8
-        self.y = screen_height - 16
+        self.x = GRID_SIZE
+        self.y = screen_height - GRID_SIZE * 2
         self.velocity_x = 0
         self.velocity_y = 0
         self.lasers = []
@@ -34,15 +35,18 @@ class Player:
         self.y += self.velocity_y
 
     def draw(self):
-        # プレイヤーを描画
-        pyxel.rect(self.x, self.y, 8, 8, 9)
+        if self.direction == "RIGHT":
+            pyxel.blt(self.x, self.y, 0, 0, 0, 16, 16, 0)
+        elif self.direction == "LEFT":
+            pyxel.blt(self.x, self.y, 0, 0, 0, -16, 16, 0)
+
         # レーザーを描画
         for laser in self.lasers:
             laser.draw()
 
     def shoot_laser(self, laser_class):
         if self.direction == "RIGHT":
-            laser = laser_class(self.x + 4, self.y + 4, "UP_RIGHT")
+            laser = laser_class(self.x + GRID_SIZE//2, self.y + GRID_SIZE//2, "UP_RIGHT")
         elif self.direction == "LEFT":
-            laser = laser_class(self.x + 4, self.y + 4, "UP_LEFT")
+            laser = laser_class(self.x + GRID_SIZE//2, self.y + GRID_SIZE//2, "UP_LEFT")
         self.lasers.append(laser) 

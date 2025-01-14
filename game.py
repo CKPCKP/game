@@ -2,21 +2,23 @@ import pyxel
 from player import Player
 from laser import Laser
 from stage import Stage
-
-# ゲームの設定
-SCREEN_WIDTH = 160
-SCREEN_HEIGHT = 120
-GRAVITY = 0.8
-JUMP_STRENGTH = -8
-PLAYER_SPEED = 2
-LASER_SPEED = 1
-LASER_LIFETIME = 150
-LASER_LENGTH = 16
-MAX_GRAVITY = 6
+from config import (
+    GRID_SIZE,
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT,
+    GRAVITY,
+    JUMP_STRENGTH,
+    PLAYER_SPEED,
+    LASER_SPEED,
+    LASER_LIFETIME,
+    LASER_LENGTH,
+    MAX_GRAVITY,
+)
 
 class Game:
     def __init__(self):
         pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=30, title="Laser Shooting Game")
+        pyxel.load("resources/player.pyxres")  # リソースファイルを読み込む
         self.player = Player(SCREEN_HEIGHT)
         self.current_stage_index = 0
         self.stages = [
@@ -103,13 +105,13 @@ class Game:
             self.player.shoot_laser(lambda x, y, direction: Laser(x, y, direction, LASER_LIFETIME, LASER_LENGTH, LASER_SPEED))
 
         # プレイヤーが画面の右端に到達したら次のステージに切り替え
-        if self.player.x >= SCREEN_WIDTH - 8:
+        if self.player.x >= SCREEN_WIDTH - GRID_SIZE:
             self.current_stage_index = (self.current_stage_index + 1) % len(self.stages)
-            self.player.x = 8  # プレイヤーを左端に戻す
+            self.player.x = GRID_SIZE  # プレイヤーを左端に戻す
 
         if self.player.x < 0:
             self.current_stage_index = (self.current_stage_index - 1) % len(self.stages)
-            self.player.x = SCREEN_WIDTH - 16
+            self.player.x = SCREEN_WIDTH - GRID_SIZE * 2
 
     def draw(self):
         pyxel.cls(0)

@@ -1,5 +1,6 @@
 import pyxel
 from player import Player
+from config import GRID_SIZE
 
 
 class Block:
@@ -17,8 +18,8 @@ class Block:
 
     def check_collision(self, player):
         # プレイヤーとブロックの境界
-        player_right = player.x + 8
-        player_bottom = player.y + 8
+        player_right = player.x + GRID_SIZE
+        player_bottom = player.y + GRID_SIZE
         block_right = self.x + self.width
         block_bottom = self.y + self.height
 
@@ -30,8 +31,8 @@ class Block:
             and player_bottom > self.y
         ):
             # 上からの衝突
-            if player.y + 8 - player.velocity_y <= self.y:
-                player.y = self.y - 8
+            if player.y + GRID_SIZE - player.velocity_y <= self.y:
+                player.y = self.y - GRID_SIZE
                 player.velocity_y = 0
                 player.on_ground = True
 
@@ -41,8 +42,8 @@ class Block:
                 player.velocity_y = max(player.velocity_y, 0)
 
             # 左からの衝突
-            elif player.x + 8 - player.velocity_x <= self.x:
-                player.x = self.x - 8
+            elif player.x + GRID_SIZE - player.velocity_x <= self.x:
+                player.x = self.x - GRID_SIZE
 
             # 右からの衝突
             elif player.x - player.velocity_x <= block_right:

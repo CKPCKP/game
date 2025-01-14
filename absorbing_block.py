@@ -1,5 +1,6 @@
 import pyxel
 from block import Block
+from config import GRID_SIZE
 
 class AbsorbingBlock(Block):
     def __init__(self, x, y, width, height, absorb_side='TOP'):

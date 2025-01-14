@@ -1,5 +1,6 @@
 import pyxel
 from block import Block
+from config import GRID_SIZE
 
 class Gate(Block):
     def __init__(self, x, y, width, height, linked_absorbing_blocks):
@@ -11,7 +12,7 @@ class Gate(Block):
         if any(block.absorbed for block in self.linked_absorbing_blocks):
             self.height = 0  # どれか1つの吸収ブロックが吸収されたらゲートを閉じる
         else:
-            self.height = 8  # ゲートを開く
+            self.height = GRID_SIZE  # ゲートを開く
 
     def draw(self):
         if self.height > 0:

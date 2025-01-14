@@ -1,9 +1,10 @@
 from block import Block
 from absorbing_block import AbsorbingBlock
 from gate import Gate
+from config import GRID_SIZE
 
 class Stage:
-    def __init__(self, ascii_map, block_size=8):
+    def __init__(self, ascii_map, block_size=GRID_SIZE):
         self.blocks = []
         self.gates = []
         self.block_size = block_size
