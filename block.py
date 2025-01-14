@@ -33,12 +33,12 @@ class Block:
             if player.y + 8 - player.velocity_y <= self.y:
                 player.y = self.y - 8
                 player.velocity_y = 0
-                player.on_ground = True  # プレイヤーがブロックの上にいる場合
+                player.on_ground = True
 
             # 下からの衝突
             elif player.y - player.velocity_y >= self.y + self.height:
                 player.y = self.y + self.height
-                player.velocity_y = max(player.velocity_y, 0)  # 下方向の速度を止める
+                player.velocity_y = max(player.velocity_y, 0)
 
             # 左からの衝突
             elif player.x + 8 - player.velocity_x <= self.x:

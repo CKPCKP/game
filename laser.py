@@ -1,5 +1,6 @@
 import pyxel
 from block import Block
+from absorbing_block import AbsorbingBlock
 
 class Laser:
     def __init__(self, x, y, direction, laser_lifetime, laser_length, laser_speed):
@@ -21,10 +22,9 @@ class Laser:
 
         # 衝突判定を先に行う
         for collidable in collidables:
-            if isinstance(collidable, Block):
-                if self.check_collision(collidable):
-                    # 衝突点を記録
-                    self.segments.append((self.x, self.y))
+            if self.check_collision(collidable):
+                # 衝突点を記録
+                self.segments.append((self.x, self.y))
 
         # レーザーの進行
         if self.direction == "UP_RIGHT":
@@ -68,7 +68,30 @@ class Laser:
         block_right = block.x + block.width
         block_bottom = block.y + block.height
 
-        # 衝突しているか確認
+        # 吸収ブロックの場合の特別な処理
+        if isinstance(block, AbsorbingBlock):
+            if (
+                block.x <= laser_next_x < block_right
+                and block.y <= laser_next_y < block_bottom
+            ):
+                if block.absorb_side == 'BOTTOM' and self.y - self.laser_speed <= block_bottom <= self.y:
+                    block.absorbed = True
+                    self.active = 0
+                    return True
+                elif block.absorb_side == 'TOP' and self.y <= block.y <= self.y + self.laser_speed:
+                    block.absorbed = True
+                    self.active = 0
+                    return True
+                elif block.absorb_side == 'LEFT' and self.x <= block.x <= self.x + self.laser_speed:
+                    block.absorbed = True
+                    self.active = 0
+                    return True
+                elif block.absorb_side == 'RIGHT' and self.x - self.laser_speed <= block_right <= self.x:
+                    block.absorbed = True
+                    self.active = 0
+                    return True
+
+        # 通常のブロックに対する衝突判定
         if (
             block.x <= laser_next_x < block_right
             and block.y <= laser_next_y < block_bottom

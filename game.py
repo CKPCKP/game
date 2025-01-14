@@ -1,7 +1,6 @@
 import pyxel
 from player import Player
 from laser import Laser
-from block import Block
 from stage import Stage
 
 # ゲームの設定
@@ -10,8 +9,8 @@ SCREEN_HEIGHT = 120
 GRAVITY = 0.8
 JUMP_STRENGTH = -8
 PLAYER_SPEED = 2
-LASER_SPEED = 2
-LASER_LIFETIME = 60
+LASER_SPEED = 1
+LASER_LIFETIME = 150
 LASER_LENGTH = 16
 MAX_GRAVITY = 6
 
@@ -33,15 +32,15 @@ class Game:
                 "#                  #",
                 "#         ###      #",
                 "#                  #",
-                "#   ###            #",
+                "#   vvv            #",
                 "#                  #",
-                "#                   ",
+                "#                  G",
                 "####################",
             ]),
             Stage([
                 "####################",
-                "#                  #",
-                "#                  #",
+                ">                  #",
+                ">                  #",
                 "#                  #",
                 "#                  #",
                 "#                  #",
@@ -52,10 +51,43 @@ class Game:
                 "#                  #",
                 "#   #              #",
                 "#                  #",
+                "                   G",
+                "####################",
+            ]),
+            Stage([
+                "####################",
+                "#                  <",
+                "#                  <",
+                "#    ###############",
+                "#                  #",
+                "#                  #",
+                "#                  #",
+                "#        #         #",
+                "#                  #",
+                "#      #           #",
+                "#                  #",
+                "#   #              #",
+                "#                  #",
+                "                   G",
+                "####################",
+            ]),
+            Stage([
+                "####################",
+                "#                  #",
+                "#  # # # ###  ###  #",
+                "#  # # #  #   # #  #",
+                "#  # # #  #   ###  #",
+                "#   # #   #   #    #",
+                "#   # #  ###  #    #",
+                "#                  #",
+                "#                  #",
+                "#                  #",
+                "#                  #",
+                "#                  #",
+                "#                  #",
                 "                   #",
                 "####################",
             ]),
-            # 他のステージをここに追加
         ]
         pyxel.run(self.update, self.draw)
 
@@ -74,6 +106,10 @@ class Game:
         if self.player.x >= SCREEN_WIDTH - 8:
             self.current_stage_index = (self.current_stage_index + 1) % len(self.stages)
             self.player.x = 8  # プレイヤーを左端に戻す
+
+        if self.player.x < 0:
+            self.current_stage_index = (self.current_stage_index - 1) % len(self.stages)
+            self.player.x = SCREEN_WIDTH - 16
 
     def draw(self):
         pyxel.cls(0)
