@@ -3,6 +3,7 @@ from player import Player
 from laser import Laser
 from stage import Stage
 from config import (
+    FPS,
     GRID_SIZE,
     SCREEN_WIDTH,
     SCREEN_HEIGHT,
@@ -17,7 +18,7 @@ from config import (
 
 class Game:
     def __init__(self):
-        pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=30, title="Laser Shooting Game")
+        pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=FPS, title="Laser Shooting Game")
         pyxel.load("resources/player.pyxres")  # リソースファイルを読み込む
         self.player = Player(SCREEN_HEIGHT)
         self.current_stage_index = 0

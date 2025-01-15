@@ -4,8 +4,8 @@ from absorbing_block import AbsorbingBlock
 
 class Laser:
     def __init__(self, x, y, direction, laser_lifetime, laser_length, laser_speed):
-        self.x = x
-        self.y = y
+        self.x = int(x)
+        self.y = int(y)
         self.direction = direction
         self.length = 0
         self.active = laser_lifetime
@@ -21,27 +21,8 @@ class Laser:
         self.active -= 1
 
         # 衝突判定を先に行う
-        for collidable in collidables:
-            if self.check_collision(collidable):
-                # 衝突点を記録
-                self.segments.append((self.x, self.y))
-
-        # レーザーの進行
-        if self.direction == "UP_RIGHT":
-            self.y -= self.laser_speed
-            self.x += self.laser_speed
-        elif self.direction == "UP_LEFT":
-            self.y -= self.laser_speed
-            self.x -= self.laser_speed
-        elif self.direction == "DOWN_RIGHT":
-            self.y += self.laser_speed
-            self.x += self.laser_speed
-        elif self.direction == "DOWN_LEFT":
-            self.y += self.laser_speed
-            self.x -= self.laser_speed
-
-        # 新しい位置をセグメントに追加
-        self.segments.append((self.x, self.y))
+        temp_segments = self.check_collision(collidables)
+        self.segments.extend(temp_segments)
 
         # レーザーが一定の長さを超えたら古いセグメントを削除
         while len(self.segments) > self.laser_length:
@@ -57,65 +38,82 @@ class Laser:
             x2, y2 = self.segments[i + 1]
             pyxel.line(x1, y1, x2, y2, 8)
 
-    def check_collision(self, block):
-        # レーザーとブロックの境界
-        laser_next_x = (
-            self.x + self.laser_speed if "RIGHT" in self.direction else self.x - self.laser_speed
-        )
-        laser_next_y = (
-            self.y - self.laser_speed if "UP" in self.direction else self.y + self.laser_speed
-        )
-        block_right = block.x + block.width
-        block_bottom = block.y + block.height
-
-        # 吸収ブロックの場合の特別な処理
-        if isinstance(block, AbsorbingBlock):
-            if (
-                block.x <= laser_next_x < block_right
-                and block.y <= laser_next_y < block_bottom
-            ):
-                if block.absorb_side == 'BOTTOM' and self.y - self.laser_speed <= block_bottom <= self.y:
-                    block.absorbed = True
-                    self.active = 0
-                    return True
-                elif block.absorb_side == 'TOP' and self.y <= block.y <= self.y + self.laser_speed:
-                    block.absorbed = True
-                    self.active = 0
-                    return True
-                elif block.absorb_side == 'LEFT' and self.x <= block.x <= self.x + self.laser_speed:
-                    block.absorbed = True
-                    self.active = 0
-                    return True
-                elif block.absorb_side == 'RIGHT' and self.x - self.laser_speed <= block_right <= self.x:
-                    block.absorbed = True
-                    self.active = 0
-                    return True
-
-        # 通常のブロックに対する衝突判定
-        if (
-            block.x <= laser_next_x < block_right
-            and block.y <= laser_next_y < block_bottom
-        ):
-            # 反射の処理
+    def check_collision(self, blocks):
+        temp_segments = []
+        collided_blocks_by_corner = []
+        for i in range(self.laser_speed):
             if self.direction == "UP_RIGHT":
-                if self.y - self.laser_speed <= block_bottom <= self.y:
-                    self.direction = "DOWN_RIGHT"
-                else:
-                    self.direction = "UP_LEFT"
+                temp_segments.append((self.x + 1, self.y - 1))
             elif self.direction == "UP_LEFT":
-                if self.y - self.laser_speed <= block_bottom <= self.y:
-                    self.direction = "DOWN_LEFT"
-                else:
-                    self.direction = "UP_RIGHT"
+                temp_segments.append((self.x - 1, self.y - 1))
             elif self.direction == "DOWN_RIGHT":
-                if self.y + self.laser_speed >= block.y >= self.y:
-                    self.direction = "UP_RIGHT"
-                else:
-                    self.direction = "DOWN_LEFT"
+                temp_segments.append((self.x + 1, self.y + 1))
             elif self.direction == "DOWN_LEFT":
-                if self.y + self.laser_speed >= block.y >= self.y:
-                    self.direction = "UP_LEFT"
-                else:
-                    self.direction = "DOWN_RIGHT"
-            return True
-        return False 
+                temp_segments.append((self.x - 1, self.y + 1))
+            self.x = temp_segments[i][0]
+            self.y = temp_segments[i][1]
+            for block in blocks:
+                block_right = block.x + block.width
+                block_bottom = block.y + block.height
+
+                # 吸収ブロックの場合の特別な処理
+                if isinstance(block, AbsorbingBlock):
+                    if block.absorb_side == 'BOTTOM' and self.y == block_bottom and block.x <= self.x <= block_right:
+                        block.absorbed = True
+                        self.active = 0
+                        return temp_segments
+                    elif block.absorb_side == 'TOP' and self.y == block.y and block.x <= self.x <= block_right:
+                        block.absorbed = True
+                        self.active = 0
+                        return temp_segments
+                    elif block.absorb_side == 'LEFT' and self.x == block.x and block.y <= self.y <= block_bottom:
+                        block.absorbed = True
+                        self.active = 0
+                        return temp_segments
+                    elif block.absorb_side == 'RIGHT' and self.x == block_right and block.y <= self.y <= block_bottom:
+                        block.absorbed = True
+                        self.active = 0
+                        return temp_segments
+
+                # 通常のブロックに対する衝突判定
+                if self.x == block.x and block.y < self.y < block_bottom and "RIGHT" in self.direction:
+                    turn_laser(self, "HORIZONTAL")
+                elif self.x == block_right and block.y < self.y < block_bottom and "LEFT" in self.direction:
+                    turn_laser(self, "HORIZONTAL")
+                elif self.y == block_bottom and block.x < self.x < block_right and "UP" in self.direction:
+                    turn_laser(self, "VERTICAL")
+                elif self.y == block.y and block.x < self.x < block_right and "DOWN" in self.direction:
+                    turn_laser(self, "VERTICAL")
+                # 隅に当たった場合の処理
+                elif self.x in (block.x, block_right) and self.y in (block.y, block_bottom):
+                    collided_blocks_by_corner.append(block)
+            if collided_blocks_by_corner:
+                if len(collided_blocks_by_corner) in (1,3):
+                    turn_laser(self, "HORIZONTAL")
+                    turn_laser(self, "VERTICAL")
+                elif collided_blocks_by_corner[0].x == collided_blocks_by_corner[1].x:
+                    turn_laser(self, "HORIZONTAL")
+                elif collided_blocks_by_corner[0].y == collided_blocks_by_corner[1].y:
+                    turn_laser(self, "VERTICAL")
+
+        return temp_segments
+
+def turn_laser(self, direction):
+    if direction == "HORIZONTAL":
+        if self.direction == "UP_RIGHT":
+            self.direction = "UP_LEFT"
+        elif self.direction == "UP_LEFT":
+            self.direction = "UP_RIGHT"
+        elif self.direction == "DOWN_RIGHT":
+            self.direction = "DOWN_LEFT"
+        elif self.direction == "DOWN_LEFT":
+            self.direction = "DOWN_RIGHT"
+    elif direction == "VERTICAL":
+        if self.direction == "UP_RIGHT":
+            self.direction = "DOWN_RIGHT"
+        elif self.direction == "UP_LEFT":
+            self.direction = "DOWN_LEFT"
+        elif self.direction == "DOWN_RIGHT":
+            self.direction = "UP_RIGHT"
+        elif self.direction == "DOWN_LEFT":
+            self.direction = "UP_LEFT"

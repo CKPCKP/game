@@ -16,7 +16,7 @@ class Stage:
             for x, char in enumerate(line):
                 block_x = x * self.block_size
                 block_y = y * self.block_size
-                if char == '#':  # '#'を通常のブロックとして扱う
+                if char == '#':
                     self.blocks.append(Block(block_x, block_y, self.block_size, self.block_size))
                 elif char in 'v^<>':
                     if char == 'v':

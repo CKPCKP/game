@@ -23,12 +23,14 @@ class Player:
             self.direction = "RIGHT"
 
         # ジャンプ処理
-        if pyxel.btnp(pyxel.KEY_SPACE) and self.on_ground:
+        if self.velocity_y == 0 and pyxel.btnp(pyxel.KEY_SPACE) and self.on_ground:
             self.velocity_y = jump_strength
             self.on_ground = False
 
-        # 重力の適用
-        self.velocity_y += gravity
+        if self.velocity_y < 0:
+            self.velocity_y += gravity * 3
+        else:
+            self.velocity_y += gravity
         self.velocity_y = min(self.velocity_y, max_gravity)
 
         # プレイヤーの位置更新
