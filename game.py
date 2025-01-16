@@ -1,4 +1,5 @@
 import pyxel
+import os
 from player import Player
 from laser import Laser
 from stage import Stage
@@ -21,82 +22,25 @@ class Game:
         pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=FPS, title="Laser Shooting Game")
         pyxel.load("resources/player.pyxres")  # リソースファイルを読み込む
         self.player = Player(SCREEN_HEIGHT)
-        self.current_stage_index = 0
-        self.stages = [
-            Stage([
-                "####################",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#         ###      #",
-                "#                  #",
-                "#   vvv            #",
-                "#                  #",
-                "#                  G",
-                "####################",
-            ]),
-            Stage([
-                "####################",
-                ">                  #",
-                ">                  #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#        #         #",
-                "#                  #",
-                "#      #           #",
-                "#                  #",
-                "#   #              #",
-                "#                  #",
-                "                   G",
-                "####################",
-            ]),
-            Stage([
-                "####################",
-                "#                  <",
-                "#                  <",
-                "#    ###############",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#        #         #",
-                "#                  #",
-                "#      #           #",
-                "#                  #",
-                "#   #              #",
-                "#                  #",
-                "                   G",
-                "####################",
-            ]),
-            Stage([
-                "####################",
-                "#                  #",
-                "#  # # # ###  ###  #",
-                "#  # # #  #   # #  #",
-                "#  # # #  #   ###  #",
-                "#   # #   #   #    #",
-                "#   # #  ###  #    #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "#                  #",
-                "                   #",
-                "####################",
-            ]),
-        ]
+        self.current_stage_index_x = 0
+        self.current_stage_index_y = 0
+        self.stages = self.load_stages("stage_map")  # ステージをロード
+        
         pyxel.run(self.update, self.draw)
+
+    def load_stages(self, directory):
+        stages = {}
+        for filename in os.listdir(directory):
+            if filename.endswith(".txt"):
+                filepath = os.path.join(directory, filename)
+                with open(filepath, 'r') as file:
+                    x,y = filename.removesuffix(".txt").split("-")
+                    stages[(int(x),int(y))] = Stage(file.read().splitlines())
+        return stages
 
     def update(self):
         self.player.update(PLAYER_SPEED, JUMP_STRENGTH, GRAVITY, MAX_GRAVITY)
-        current_stage = self.stages[self.current_stage_index]
+        current_stage = self.stages[(self.current_stage_index_y, self.current_stage_index_x)]
         current_stage.update(self.player)
 
         for laser in self.player.lasers:
@@ -107,17 +51,25 @@ class Game:
 
         # プレイヤーが画面の右端に到達したら次のステージに切り替え
         if self.player.x >= SCREEN_WIDTH - GRID_SIZE:
-            self.current_stage_index = (self.current_stage_index + 1) % len(self.stages)
+            self.current_stage_index_x = (self.current_stage_index_x + 1) % len(self.stages)
             self.player.x = GRID_SIZE  # プレイヤーを左端に戻す
 
         if self.player.x < 0:
-            self.current_stage_index = (self.current_stage_index - 1) % len(self.stages)
+            self.current_stage_index_x = (self.current_stage_index_x - 1) % len(self.stages)
             self.player.x = SCREEN_WIDTH - GRID_SIZE * 2
+        
+        if self.player.y >= SCREEN_HEIGHT - GRID_SIZE:
+            self.current_stage_index_y = (self.current_stage_index_y + 1) % len(self.stages)
+            self.player.y = GRID_SIZE  # プレイヤーを左端に戻す
+
+        if self.player.y < 0:
+            self.current_stage_index_y = (self.current_stage_index_y - 1) % len(self.stages)
+            self.player.y = SCREEN_HEIGHT - GRID_SIZE * 2
 
     def draw(self):
         pyxel.cls(0)
         self.player.draw()
-        current_stage = self.stages[self.current_stage_index]
+        current_stage = self.stages[(self.current_stage_index_y, self.current_stage_index_x)]
         current_stage.draw()
 
 Game()
