@@ -39,12 +39,13 @@ class Game:
         return stages
 
     def update(self):
-        self.player.update(PLAYER_SPEED, JUMP_STRENGTH, GRAVITY, MAX_GRAVITY)
         current_stage = self.stages[(self.current_stage_index_y, self.current_stage_index_x)]
-        current_stage.update(self.player)
+        current_stage.update()
+        self.player.update(PLAYER_SPEED, JUMP_STRENGTH, GRAVITY, MAX_GRAVITY, current_stage.collidables)
+        
 
         for laser in self.player.lasers:
-            laser.update(current_stage.blocks)
+            laser.update(current_stage.collidables)
 
         if pyxel.btnp(pyxel.KEY_Z):
             self.player.shoot_laser(lambda x, y, direction: Laser(x, y, direction, LASER_LIFETIME, LASER_LENGTH, LASER_SPEED))

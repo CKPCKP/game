@@ -2,9 +2,9 @@ import pyxel
 from block import Block
 from config import GRID_SIZE
 
-class AbsorbingBlock(Block):
-    def __init__(self, x, y, width, height, absorb_side='TOP'):
-        super().__init__(x, y, width, height)
+class FlagBlock(Block):
+    def __init__(self, x, y, width, height, absorb_side='TOP', collide_with_player=True, collide_with_laser=False):
+        super().__init__(x, y, width, height, collide_with_player, collide_with_laser)
         self.absorb_side = absorb_side
         self.absorbed = False
 

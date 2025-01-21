@@ -3,8 +3,8 @@ from block import Block
 from config import GRID_SIZE
 
 class Gate(Block):
-    def __init__(self, x, y, width, height, linked_absorbing_blocks):
-        super().__init__(x, y, width, height)
+    def __init__(self, x, y, width, height, collidable_with_player, collide_with_laser, linked_absorbing_blocks):
+        super().__init__(x, y, width, height, collidable_with_player, collide_with_laser)
         self.linked_absorbing_blocks = linked_absorbing_blocks
         self.does_exist = True
         self.height = GRID_SIZE
@@ -21,7 +21,9 @@ class Gate(Block):
 
     def check_collision(self, player):
         if self.does_exist:
-            super().check_collision(player)
+            return super().check_collision(player)
+        else:
+            return False
 
     def draw_dashed_rect(self, x, y, width, height, color):
         width -= 1

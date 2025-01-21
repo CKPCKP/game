@@ -11,7 +11,9 @@ class Player:
         self.direction = "RIGHT"
         self.on_ground = False
 
-    def update(self, player_speed, jump_strength, gravity, max_gravity):
+    def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
+        previous_x = self.x
+        previous_y = self.y
         # 横の移動
         if pyxel.btn(pyxel.KEY_LEFT):
             self.velocity_x = -player_speed
@@ -35,6 +37,22 @@ class Player:
 
         # プレイヤーの位置更新
         self.y += self.velocity_y
+        velocity_y_yappari = self.velocity_y
+        velocity_x_yappari = self.velocity_x
+
+        collided_list = []
+        for collidable in collidables:
+            if collidable.check_collision(self):
+                collided_list.append((collidable.x, collidable.y))
+        
+        if len(collided_list) == 2:
+            if collided_list[0][0] == collided_list[1][0]:
+                self.velocity_y = velocity_y_yappari
+                self.y = previous_y + velocity_y_yappari
+            elif collided_list[0][1] == collided_list[1][1]:
+                self.velocity_x = velocity_x_yappari
+                self.x = previous_x + velocity_x_yappari  
+            
 
     def draw(self):
         if self.direction == "RIGHT":

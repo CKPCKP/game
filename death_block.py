@@ -3,8 +3,9 @@ from block import Block
 from config import GRID_SIZE
 
 class DeathBlock(Block):
-    def __init__(self, x, y, width, height):
-        super().__init__(x, y, width, height)
+    def __init__(self, x, y, width, height, start_position, collide_with_player=True, collide_with_laser=False):
+        super().__init__(x, y, width, height, collide_with_player, collide_with_laser)
+        self.start_position = start_position
 
     def draw(self):
         # デス・ブロックの色を設定
@@ -26,7 +27,6 @@ class DeathBlock(Block):
             and player_bottom > self.y
         ):
             # プレイヤーを初期位置に戻す
-            player.x = GRID_SIZE
-            player.y = pyxel.height - GRID_SIZE * 2
+            player.x, player.y = self.start_position
             player.velocity_y = 0
             player.on_ground = True 

@@ -1,6 +1,6 @@
 import pyxel
 from block import Block
-from absorbing_block import AbsorbingBlock
+from flag_block import FlagBlock
 
 class Laser:
     def __init__(self, x, y, direction, laser_lifetime, laser_length, laser_speed):
@@ -42,6 +42,9 @@ class Laser:
         temp_segments = []
         collided_blocks_by_corner = []
         for i in range(self.laser_speed):
+            if self.active == 1:
+                return temp_segments
+    
             if self.direction == "UP_RIGHT":
                 temp_segments.append((self.x + 1, self.y - 1))
             elif self.direction == "UP_LEFT":
@@ -57,25 +60,16 @@ class Laser:
                 block_bottom = block.y + block.height
 
                 # 吸収ブロックの場合の特別な処理
-                if isinstance(block, AbsorbingBlock):
-                    if block.absorb_side == 'BOTTOM' and self.y == block_bottom and block.x <= self.x <= block_right:
-                        block.absorbed = True
-                        self.active = 0
-                        return temp_segments
-                    elif block.absorb_side == 'TOP' and self.y == block.y and block.x <= self.x <= block_right:
-                        block.absorbed = True
-                        self.active = 0
-                        return temp_segments
-                    elif block.absorb_side == 'LEFT' and self.x == block.x and block.y <= self.y <= block_bottom:
-                        block.absorbed = True
-                        self.active = 0
-                        return temp_segments
-                    elif block.absorb_side == 'RIGHT' and self.x == block_right and block.y <= self.y <= block_bottom:
-                        block.absorbed = True
-                        self.active = 0
+                if block.collide_with_laser == "ABSORB":
+                    if ('BOTTOM' in block.absorb_side and self.y == block_bottom and block.x <= self.x <= block_right) or \
+                       ('TOP' in block.absorb_side and self.y == block.y and block.x <= self.x <= block_right) or \
+                       ('LEFT' in block.absorb_side and self.x == block.x and block.y <= self.y <= block_bottom) or \
+                       ('RIGHT' in block.absorb_side and self.x == block_right and block.y <= self.y <= block_bottom):
+                        self.active = 1
+                        if isinstance(block, FlagBlock):
+                            block.absorbed = True
                         return temp_segments
 
-                # 通常のブロックに対する衝突判定
                 if self.x == block.x and block.y < self.y < block_bottom and "RIGHT" in self.direction:
                     turn_laser(self, "HORIZONTAL")
                 elif self.x == block_right and block.y < self.y < block_bottom and "LEFT" in self.direction:
