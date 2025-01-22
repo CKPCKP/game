@@ -52,6 +52,9 @@ class Player:
             elif collided_list[0][1] == collided_list[1][1]:
                 self.velocity_x = velocity_x_yappari
                 self.x = previous_x + velocity_x_yappari  
+        
+        if self.on_ground == False:
+            print(self.velocity_y)
             
 
     def draw(self):

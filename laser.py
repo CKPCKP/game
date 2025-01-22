@@ -56,6 +56,8 @@ class Laser:
             self.x = temp_segments[i][0]
             self.y = temp_segments[i][1]
             for block in blocks:
+                if block.collide_with_laser == "TRANSPARENT":
+                    continue
                 block_right = block.x + block.width
                 block_bottom = block.y + block.height
 

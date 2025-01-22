@@ -30,7 +30,7 @@ class Block:
         if self.collide_with_player:
             pyxel.rect(self.x, self.y, self.width, self.height, self.color)
         else:   
-            self.rectb(self.x, self.y, self.width, self.height, self.color)
+            pyxel.rectb(self.x, self.y, self.width, self.height, self.color)
 
     def check_collision(self, player):
         if not self.collide_with_player:

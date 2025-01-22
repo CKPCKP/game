@@ -27,6 +27,8 @@ class Stage:
                     self.collidables.append(Block(block_x, block_y, self.block_size, self.block_size, collide_with_player=True, collide_with_laser="TRANSPARENT"))
                 elif char == 'B': # 黒
                     self.collidables.append(Block(block_x, block_y, self.block_size, self.block_size, collide_with_player=False, collide_with_laser="ABSORB"))
+                elif char == 'W': # 水
+                    self.collidables.append(Block(block_x, block_y, self.block_size, self.block_size, collide_with_player=False, collide_with_laser="REFLECT"))
                 elif char == 'D':
                     self.collidables.append(DeathBlock(block_x, block_y, self.block_size, self.block_size, self.start_position, collide_with_player=True, collide_with_laser="ABSORB"))
                 elif char in 'v^<>':
