@@ -53,19 +53,19 @@ class Game:
         # プレイヤーが画面の右端に到達したら次のステージに切り替え
         if self.player.x >= SCREEN_WIDTH - GRID_SIZE:
             self.current_stage_index_x = (self.current_stage_index_x + 1) % len(self.stages)
-            self.player.x = GRID_SIZE
+            self.player.x -= SCREEN_WIDTH - GRID_SIZE * 2
 
         if self.player.x < 0:
             self.current_stage_index_x = (self.current_stage_index_x - 1) % len(self.stages)
-            self.player.x = SCREEN_WIDTH - GRID_SIZE * 2
+            self.player.x += SCREEN_WIDTH - GRID_SIZE * 2
         
         if self.player.y >= SCREEN_HEIGHT - GRID_SIZE:
             self.current_stage_index_y = (self.current_stage_index_y + 1) % len(self.stages)
-            self.player.y = GRID_SIZE 
+            self.player.y -= SCREEN_HEIGHT - GRID_SIZE * 2
 
         if self.player.y < 0:
             self.current_stage_index_y = (self.current_stage_index_y - 1) % len(self.stages)
-            self.player.y = SCREEN_HEIGHT - GRID_SIZE * 2
+            self.player.y += SCREEN_HEIGHT - GRID_SIZE * 2
 
     def draw(self):
         pyxel.cls(0)

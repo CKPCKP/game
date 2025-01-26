@@ -14,10 +14,9 @@ class Laser:
         self.laser_length = laser_length
 
     def update(self, collidables):
+        # レーザーの生存時間を1減らす
         if not self.active:
             return
-
-        # レーザーの生存時間を1減らす
         self.active -= 1
 
         # 衝突判定を先に行う
@@ -42,8 +41,6 @@ class Laser:
         temp_segments = []
         collided_blocks_by_corner = []
         for i in range(self.laser_speed):
-            if self.active == 1:
-                return temp_segments
     
             if self.direction == "UP_RIGHT":
                 temp_segments.append((self.x + 1, self.y - 1))
@@ -67,9 +64,10 @@ class Laser:
                        ('TOP' in block.absorb_side and self.y == block.y and block.x <= self.x <= block_right) or \
                        ('LEFT' in block.absorb_side and self.x == block.x and block.y <= self.y <= block_bottom) or \
                        ('RIGHT' in block.absorb_side and self.x == block_right and block.y <= self.y <= block_bottom):
-                        self.active = 1
+                        self.active = min(self.active, 1)
                         if isinstance(block, FlagBlock):
                             block.absorbed = True
+                        print(temp_segments)
                         return temp_segments
 
                 if self.x == block.x and block.y < self.y < block_bottom and "RIGHT" in self.direction:
