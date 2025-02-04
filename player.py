@@ -10,6 +10,7 @@ class Player:
         self.lasers = []
         self.direction = "RIGHT"
         self.on_ground = False
+        self.alive = True
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
         previous_x = self.x
@@ -66,7 +67,14 @@ class Player:
 
     def shoot_laser(self, laser_class):
         if self.direction == "RIGHT":
-            laser = laser_class(self.x + GRID_SIZE//2, self.y + GRID_SIZE//2, "UP_RIGHT")
-        elif self.direction == "LEFT":
             laser = laser_class(self.x + GRID_SIZE//2, self.y + GRID_SIZE//2, "UP_LEFT")
+        elif self.direction == "LEFT":
+            laser = laser_class(self.x + GRID_SIZE//2, self.y + GRID_SIZE//2, "UP_RIGHT")
         self.lasers.append(laser) 
+    
+    def revive(self, stage):
+        self.alive = True
+        self.x = stage.start_position[0]
+        self.y = stage.start_position[1]
+        self.velocity_x = 0
+        self.velocity_y = 0

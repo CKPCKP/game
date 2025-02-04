@@ -67,7 +67,6 @@ class Laser:
                         self.active = min(self.active, 1)
                         if isinstance(block, FlagBlock):
                             block.absorbed = True
-                        print(temp_segments)
                         return temp_segments
 
                 if self.x == block.x and block.y < self.y < block_bottom and "RIGHT" in self.direction:

@@ -8,8 +8,9 @@ class Stage:
     def __init__(self, ascii_map, block_size=GRID_SIZE):
         self.collidables = []
         self.block_size = block_size
-        self.parse_ascii_map(ascii_map)
         self.start_position = None
+        self.parse_ascii_map(ascii_map)
+        self.map = ascii_map
 
     def parse_ascii_map(self, ascii_map):
         absorbing_blocks = []
@@ -48,6 +49,9 @@ class Stage:
     def update(self):
         for collidable in self.collidables:
             collidable.update()
+    
+    def reset(self):
+        self.__init__(self.map)
 
     def draw(self):
         for collidable in self.collidables:

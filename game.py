@@ -24,7 +24,7 @@ class Game:
         self.player = Player(SCREEN_HEIGHT)
         self.current_stage_index_x = 0
         self.current_stage_index_y = 0
-        self.stages = self.load_stages("stage_map")  # ステージをロード
+        self.stages = self.load_stages("stage_map")
         
         pyxel.run(self.update, self.draw)
 
@@ -66,6 +66,10 @@ class Game:
         if self.player.y < 0:
             self.current_stage_index_y = (self.current_stage_index_y - 1) % len(self.stages)
             self.player.y += SCREEN_HEIGHT - GRID_SIZE * 2
+
+        if self.player.alive == False:
+            self.stages[(self.current_stage_index_y, self.current_stage_index_x)].reset()
+            self.player.revive(current_stage)
 
     def draw(self):
         pyxel.cls(0)

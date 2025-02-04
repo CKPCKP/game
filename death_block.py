@@ -26,7 +26,4 @@ class DeathBlock(Block):
             and player.y < block_bottom
             and player_bottom > self.y
         ):
-            # プレイヤーを初期位置に戻す
-            player.x, player.y = self.start_position
-            player.velocity_y = 0
-            player.on_ground = True 
+            player.alive = False

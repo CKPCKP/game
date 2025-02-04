@@ -10,8 +10,8 @@ class FlagBlock(Block):
 
     def draw(self):
         # ブロックの共通色
-        block_color = 12  # グレー
-        accent_color = 8  # 赤
+        block_color = 9 
+        accent_color = 7
 
         # ブロックを描画
         pyxel.rect(self.x, self.y, self.width, self.height, block_color)
