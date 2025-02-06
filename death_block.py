@@ -2,8 +2,18 @@ import pyxel
 from block import Block
 from config import GRID_SIZE
 
+
 class DeathBlock(Block):
-    def __init__(self, x, y, width, height, start_position, collide_with_player=True, collide_with_laser=False):
+    def __init__(
+        self,
+        x,
+        y,
+        width,
+        height,
+        start_position,
+        collide_with_player=True,
+        collide_with_laser=False,
+    ):
         super().__init__(x, y, width, height, collide_with_player, collide_with_laser)
         self.start_position = start_position
 

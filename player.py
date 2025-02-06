@@ -1,6 +1,7 @@
 import pyxel
 from config import GRID_SIZE
 
+
 class Player:
     def __init__(self, screen_height):
         self.x = GRID_SIZE
@@ -45,15 +46,14 @@ class Player:
         for collidable in collidables:
             if collidable.check_collision(self):
                 collided_list.append((collidable.x, collidable.y))
-        
+
         if len(collided_list) == 2:
             if collided_list[0][0] == collided_list[1][0]:
                 self.velocity_y = velocity_y_yappari
                 self.y = previous_y + velocity_y_yappari
             elif collided_list[0][1] == collided_list[1][1]:
                 self.velocity_x = velocity_x_yappari
-                self.x = previous_x + velocity_x_yappari  
-            
+                self.x = previous_x + velocity_x_yappari
 
     def draw(self):
         if self.direction == "RIGHT":
@@ -67,11 +67,15 @@ class Player:
 
     def shoot_laser(self, laser_class):
         if self.direction == "RIGHT":
-            laser = laser_class(self.x + GRID_SIZE//2, self.y + GRID_SIZE//2, "UP_LEFT")
+            laser = laser_class(
+                self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_LEFT"
+            )
         elif self.direction == "LEFT":
-            laser = laser_class(self.x + GRID_SIZE//2, self.y + GRID_SIZE//2, "UP_RIGHT")
-        self.lasers.append(laser) 
-    
+            laser = laser_class(
+                self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_RIGHT"
+            )
+        self.lasers.append(laser)
+
     def revive(self, stage):
         self.alive = True
         self.x = stage.start_position[0]

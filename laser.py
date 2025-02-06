@@ -2,6 +2,7 @@ import pyxel
 from block import Block
 from flag_block import FlagBlock
 
+
 class Laser:
     def __init__(self, x, y, direction, laser_lifetime, laser_length, laser_speed):
         self.x = int(x)
@@ -41,7 +42,6 @@ class Laser:
         temp_segments = []
         collided_blocks_by_corner = []
         for i in range(self.laser_speed):
-    
             if self.direction == "UP_RIGHT":
                 temp_segments.append((self.x + 1, self.y - 1))
             elif self.direction == "UP_LEFT":
@@ -60,28 +60,65 @@ class Laser:
 
                 # 吸収ブロックの場合の特別な処理
                 if block.collide_with_laser == "ABSORB":
-                    if ('BOTTOM' in block.absorb_side and self.y == block_bottom and block.x <= self.x <= block_right) or \
-                       ('TOP' in block.absorb_side and self.y == block.y and block.x <= self.x <= block_right) or \
-                       ('LEFT' in block.absorb_side and self.x == block.x and block.y <= self.y <= block_bottom) or \
-                       ('RIGHT' in block.absorb_side and self.x == block_right and block.y <= self.y <= block_bottom):
+                    if (
+                        (
+                            "BOTTOM" in block.absorb_side
+                            and self.y == block_bottom
+                            and block.x <= self.x <= block_right
+                        )
+                        or (
+                            "TOP" in block.absorb_side
+                            and self.y == block.y
+                            and block.x <= self.x <= block_right
+                        )
+                        or (
+                            "LEFT" in block.absorb_side
+                            and self.x == block.x
+                            and block.y <= self.y <= block_bottom
+                        )
+                        or (
+                            "RIGHT" in block.absorb_side
+                            and self.x == block_right
+                            and block.y <= self.y <= block_bottom
+                        )
+                    ):
                         self.active = min(self.active, 1)
                         if isinstance(block, FlagBlock):
                             block.absorbed += 1
                         return temp_segments
 
-                if self.x == block.x and block.y < self.y < block_bottom and "RIGHT" in self.direction:
+                if (
+                    self.x == block.x
+                    and block.y < self.y < block_bottom
+                    and "RIGHT" in self.direction
+                ):
                     turn_laser(self, "HORIZONTAL")
-                elif self.x == block_right and block.y < self.y < block_bottom and "LEFT" in self.direction:
+                elif (
+                    self.x == block_right
+                    and block.y < self.y < block_bottom
+                    and "LEFT" in self.direction
+                ):
                     turn_laser(self, "HORIZONTAL")
-                elif self.y == block_bottom and block.x < self.x < block_right and "UP" in self.direction:
+                elif (
+                    self.y == block_bottom
+                    and block.x < self.x < block_right
+                    and "UP" in self.direction
+                ):
                     turn_laser(self, "VERTICAL")
-                elif self.y == block.y and block.x < self.x < block_right and "DOWN" in self.direction:
+                elif (
+                    self.y == block.y
+                    and block.x < self.x < block_right
+                    and "DOWN" in self.direction
+                ):
                     turn_laser(self, "VERTICAL")
                 # 隅に当たった場合の処理
-                elif self.x in (block.x, block_right) and self.y in (block.y, block_bottom):
+                elif self.x in (block.x, block_right) and self.y in (
+                    block.y,
+                    block_bottom,
+                ):
                     collided_blocks_by_corner.append(block)
             if collided_blocks_by_corner:
-                if len(collided_blocks_by_corner) in (1,3):
+                if len(collided_blocks_by_corner) in (1, 3):
                     turn_laser(self, "HORIZONTAL")
                     turn_laser(self, "VERTICAL")
                 elif collided_blocks_by_corner[0].x == collided_blocks_by_corner[1].x:
@@ -90,6 +127,7 @@ class Laser:
                     turn_laser(self, "VERTICAL")
 
         return temp_segments
+
 
 def turn_laser(self, direction):
     if direction == "HORIZONTAL":

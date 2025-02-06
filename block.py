@@ -14,7 +14,7 @@ class Block:
         if self.collide_with_laser == "ABSORB":
             self.absorb_side = ("TOP", "BOTTOM", "LEFT", "RIGHT")
         self.set_design()
-    
+
     def set_design(self):
         if self.collide_with_laser == "ABSORB":
             self.color = 2
@@ -29,7 +29,7 @@ class Block:
     def draw(self):
         if self.collide_with_player:
             pyxel.rect(self.x, self.y, self.width, self.height, self.color)
-        else:   
+        else:
             pyxel.rectb(self.x, self.y, self.width, self.height, self.color)
 
     def check_collision(self, player):
@@ -48,7 +48,6 @@ class Block:
             and player.y < block_bottom
             and player_bottom > self.y
         ):
-            
             # 上からの衝突
             if player.y + GRID_SIZE - player.velocity_y <= self.y:
                 player.y = self.y - GRID_SIZE
@@ -66,5 +65,5 @@ class Block:
 
             # 右からの衝突
             elif player.x - player.velocity_x <= block_right:
-                player.x = block_right 
+                player.x = block_right
             return (self.x, self.y)
