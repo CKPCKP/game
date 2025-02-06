@@ -43,8 +43,10 @@ class Stage:
                         absorbing_block = FlagBlock(block_x, block_y, self.block_size, self.block_size, absorb_side='RIGHT', collide_with_laser="ABSORB")
                     self.collidables.append(absorbing_block)
                     absorbing_blocks.append(absorbing_block)
-                elif char == 'G':  # 'G'をゲートとして扱う
+                elif char == 'X':
                     self.collidables.append(Gate(block_x, block_y, self.block_size, self.block_size, collidable_with_player=True, collide_with_laser="ABSORB", linked_absorbing_blocks=absorbing_blocks))
+                elif char == 'Y':
+                    self.collidables.append(Gate(block_x, block_y, self.block_size, self.block_size, collidable_with_player=True, collide_with_laser="ABSORB", linked_absorbing_blocks=absorbing_blocks, initial_exist=False))
 
     def update(self):
         for collidable in self.collidables:

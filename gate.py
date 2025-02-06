@@ -3,15 +3,20 @@ from block import Block
 from config import GRID_SIZE
 
 class Gate(Block):
-    def __init__(self, x, y, width, height, collidable_with_player, collide_with_laser, linked_absorbing_blocks):
+    def __init__(self, x, y, width, height, collidable_with_player, collide_with_laser, linked_absorbing_blocks, initial_exist = True):
         super().__init__(x, y, width, height, collidable_with_player, collide_with_laser)
         self.linked_absorbing_blocks = linked_absorbing_blocks
-        self.does_exist = True
+        self.does_exist = initial_exist
         self.height = GRID_SIZE
+        self.absorbed_judge = 0
 
     def update(self):
-        if any(block.absorbed for block in self.linked_absorbing_blocks):
-            self.does_exist = False
+        absorbed_sum = sum([block.absorbed for block in self.linked_absorbing_blocks])
+        if absorbed_sum > self.absorbed_judge:
+            self.absorbed_judge = absorbed_sum
+            self.does_exist = self.does_exist ^ True
+        if not self.does_exist:
+            self.collide_with_laser = "TRANSPARENT"
 
     def draw(self):
         if self.does_exist:
