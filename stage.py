@@ -3,11 +3,13 @@ from flag_block import FlagBlock
 from gate import Gate
 from config import GRID_SIZE
 from death_block import DeathBlock
+from coin import Coin
 
 
 class Stage:
     def __init__(self, ascii_map, block_size=GRID_SIZE):
         self.collidables = []
+        self.coins = []
         self.block_size = block_size
         self.start_position = None
         self.parse_ascii_map(ascii_map)
@@ -152,6 +154,15 @@ class Stage:
                             initial_exist=False,
                         )
                     )
+                elif char == "C":
+                    self.coins.append(
+                        Coin(
+                            block_x,
+                            block_y
+                        )
+                    
+                    )
+                    
 
     def update(self):
         for collidable in self.collidables:
@@ -163,3 +174,5 @@ class Stage:
     def draw(self):
         for collidable in self.collidables:
             collidable.draw()
+        for coin in self.coins:
+            coin.draw()

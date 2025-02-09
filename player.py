@@ -75,9 +75,31 @@ class Player:
                 self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_RIGHT"
             )
         self.lasers.append(laser)
+    
+    def check_get_coin(self, coins):
+        for coin in coins:
+            if coin.collected:
+                return
+
+            player_right = self.x + GRID_SIZE
+            player_bottom = self.y + GRID_SIZE
+            coin_right = coin.x + GRID_SIZE
+            coin_bottom = coin.y + GRID_SIZE
+
+            # 衝突判定
+            if (
+                coin.x < player_right
+                and coin_right > self.x
+                and coin.y < player_bottom
+                and coin_bottom > self.y
+            ):
+                coin.collected = True
+            for laser in self.lasers:
+                laser.check_get_coin(coin)
 
     def revive(self, stage):
         self.alive = True
+        self.lasers = []
         self.x = stage.start_position[0]
         self.y = stage.start_position[1]
         self.velocity_x = 0

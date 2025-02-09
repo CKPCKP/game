@@ -16,6 +16,7 @@ from config import (
     LASER_LENGTH,
     MAX_GRAVITY,
 )
+from coin import Coin
 
 
 class Game:
@@ -47,6 +48,7 @@ class Game:
         self.player.update(
             PLAYER_SPEED, JUMP_STRENGTH, GRAVITY, MAX_GRAVITY, current_stage.collidables
         )
+        self.player.check_get_coin(current_stage.coins)
 
         for laser in self.player.lasers:
             laser.update(current_stage.collidables)

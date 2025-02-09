@@ -1,6 +1,7 @@
 import pyxel
 from block import Block
 from flag_block import FlagBlock
+from config import GRID_SIZE
 
 
 class Laser:
@@ -127,6 +128,26 @@ class Laser:
                     turn_laser(self, "VERTICAL")
 
         return temp_segments
+    
+    def check_get_coin(self, coin):
+        if coin.collected:
+            return False
+
+        laser_right = self.x
+        laser_bottom = self.y
+        coin_right = coin.x + GRID_SIZE
+        coin_bottom = coin.y + GRID_SIZE
+
+        # 衝突判定
+        if (
+            coin.x < laser_right
+            and coin_right > self.x
+            and coin.y < laser_bottom
+            and coin_bottom > self.y
+        ):
+            coin.collected = True
+            return True
+        return False 
 
 
 def turn_laser(self, direction):

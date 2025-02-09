@@ -28,7 +28,9 @@ class Gate(Block):
         if absorbed_sum > self.absorbed_judge:
             self.absorbed_judge = absorbed_sum
             self.does_exist = self.does_exist ^ True
-        if not self.does_exist:
+        if self.does_exist:
+            self.collide_with_laser = "ABSORB"
+        else:
             self.collide_with_laser = "TRANSPARENT"
 
     def draw(self):
