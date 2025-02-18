@@ -119,9 +119,22 @@ class Laser:
                 ):
                     collided_blocks_by_corner.append(block)
             if collided_blocks_by_corner:
-                if len(collided_blocks_by_corner) in (1, 3):
+                if len(collided_blocks_by_corner) == 3:
                     turn_laser(self, "HORIZONTAL")
                     turn_laser(self, "VERTICAL")
+                elif len(collided_blocks_by_corner) == 1:
+                    if "RIGHT" in self.direction:
+                        next_x = self.x + 1
+                    else:
+                        next_x = self.x - 1
+                    if "DOWN" in self.direction:
+                        next_y = self.y + 1
+                    else:
+                        next_y = self.y - 1
+                    if (block.x < next_x < block_right
+                    and block.y < next_y < block_bottom):
+                        turn_laser(self, "HORIZONTAL")
+                        turn_laser(self, "VERTICAL")
                 elif collided_blocks_by_corner[0].x == collided_blocks_by_corner[1].x:
                     turn_laser(self, "HORIZONTAL")
                 elif collided_blocks_by_corner[0].y == collided_blocks_by_corner[1].y:
