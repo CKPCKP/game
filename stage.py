@@ -4,16 +4,19 @@ from gate import Gate
 from config import GRID_SIZE
 from death_block import DeathBlock
 from coin import Coin
+from save_point import SavePoint
 
 
 class Stage:
-    def __init__(self, ascii_map, block_size=GRID_SIZE):
+    def __init__(self, ascii_map, index_x, index_y, block_size=GRID_SIZE):
         self.collidables = []
         self.coins = []
         self.block_size = block_size
         self.start_position = None
-        self.parse_ascii_map(ascii_map)
         self.map = ascii_map
+        self.index_x = index_x
+        self.index_y = index_y
+        self.parse_ascii_map(ascii_map)
 
     def parse_ascii_map(self, ascii_map):
         absorbing_blocks = []
@@ -22,7 +25,12 @@ class Stage:
                 block_x = x * self.block_size
                 block_y = y * self.block_size
                 if char == "S":
-                    self.start_position = (block_x, block_y)
+                    self.collidables.append(SavePoint(
+                        self.index_x,
+                        self.index_y,
+                        block_x,
+                        block_y,
+                    ))
                 elif char == "#":
                     self.collidables.append(
                         Block(
@@ -169,7 +177,7 @@ class Stage:
             collidable.update()
 
     def reset(self):
-        self.__init__(self.map)
+        self.__init__(self.map, self.index_x, self.index_y)
 
     def draw(self):
         for collidable in self.collidables:

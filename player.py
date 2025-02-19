@@ -12,6 +12,7 @@ class Player:
         self.direction = "RIGHT"
         self.on_ground = False
         self.alive = True
+        self.save_point = (0,0,0,0)
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
         previous_x = self.x
@@ -97,10 +98,13 @@ class Player:
             for laser in self.lasers:
                 laser.check_get_coin(coin)
 
-    def revive(self, stage):
+    def revive(self):
         self.alive = True
         self.lasers = []
-        self.x = stage.start_position[0]
-        self.y = stage.start_position[1]
+        self.x = self.save_point[2]
+        self.y = self.save_point[3]
         self.velocity_x = 0
         self.velocity_y = 0
+    
+    def save(self, index_x, index_y, x, y):
+        self.save_point = (index_x, index_y, x, y)

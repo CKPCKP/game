@@ -16,6 +16,7 @@ from config import (
     LASER_LENGTH,
     MAX_GRAVITY,
 )
+from save_point import SavePoint  # 追加
 
 
 class Game:
@@ -23,7 +24,7 @@ class Game:
         pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=FPS, title="Laser Shooting Game")
         pyxel.load("resources/player.pyxres")  # リソースファイルを読み込む
         self.player = Player(SCREEN_HEIGHT)
-        self.current_stage_index_x = 10
+        self.current_stage_index_x = 11
         self.current_stage_index_y = 0
         self.stages = self.load_stages("stage_map")
 
@@ -36,7 +37,7 @@ class Game:
                 filepath = os.path.join(directory, filename)
                 with open(filepath, "r") as file:
                     x, y = filename.removesuffix(".txt").split("-")
-                    stages[(int(x), int(y))] = Stage(file.read().splitlines())
+                    stages[(int(x), int(y))] = Stage(file.read().splitlines(), int(x), int(y))
         return stages
 
     def update(self):
@@ -85,10 +86,13 @@ class Game:
             self.player.y += SCREEN_HEIGHT - GRID_SIZE * 2
 
         if self.player.alive == False:
+            print(self.player.save_point)
+            self.current_stage_index_x = self.player.save_point[1]
+            self.current_stage_index_y = self.player.save_point[0]
             self.stages[
                 (self.current_stage_index_y, self.current_stage_index_x)
             ].reset()
-            self.player.revive(current_stage)
+            self.player.revive()
 
     def draw(self):
         pyxel.cls(0)
