@@ -1,5 +1,6 @@
 import pyxel
 from config import GRID_SIZE
+from save_point import SavePoint
 
 
 class Player:
@@ -13,6 +14,7 @@ class Player:
         self.on_ground = False
         self.alive = True
         self.save_point = (0,0,0,0)
+        self.collected_coins = {}
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
         previous_x = self.x
@@ -94,7 +96,8 @@ class Player:
                 and coin.y < player_bottom
                 and coin_bottom > self.y
             ):
-                coin.collected = True
+                self.collected_coins[coin] = "kari"
+                coin.collected = "kari"
             for laser in self.lasers:
                 laser.check_get_coin(coin)
 
@@ -105,6 +108,15 @@ class Player:
         self.y = self.save_point[3]
         self.velocity_x = 0
         self.velocity_y = 0
+        for k in self.collected_coins.keys():
+            if self.collected_coins[k] == "kari":
+                k.collected = ""
+                self.collected_coins[k] = ""
+
     
     def save(self, index_x, index_y, x, y):
         self.save_point = (index_x, index_y, x, y)
+        for k in self.collected_coins.keys():
+            if self.collected_coins[k] == "kari":
+                self.collected_coins[k] = "fixed"
+                k.collected = "fixed"

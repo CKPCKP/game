@@ -158,7 +158,7 @@ class Laser:
             and coin.y < laser_bottom
             and coin_bottom > self.y
         ):
-            coin.collected = True
+            coin.collected = "not_saved"
             return True
         return False 
 

@@ -1,5 +1,4 @@
 import pyxel
-from player import Player
 from config import GRID_SIZE
 
 

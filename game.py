@@ -24,7 +24,7 @@ class Game:
         pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=FPS, title="Laser Shooting Game")
         pyxel.load("resources/player.pyxres")  # リソースファイルを読み込む
         self.player = Player(SCREEN_HEIGHT)
-        self.current_stage_index_x = 11
+        self.current_stage_index_x = 0
         self.current_stage_index_y = 0
         self.stages = self.load_stages("stage_map")
 
@@ -86,7 +86,6 @@ class Game:
             self.player.y += SCREEN_HEIGHT - GRID_SIZE * 2
 
         if self.player.alive == False:
-            print(self.player.save_point)
             self.current_stage_index_x = self.player.save_point[1]
             self.current_stage_index_y = self.player.save_point[0]
             self.stages[

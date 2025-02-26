@@ -20,6 +20,7 @@ class Gate(Block):
         )
         self.linked_absorbing_blocks = linked_absorbing_blocks
         self.does_exist = initial_exist
+        self.initial_exist = initial_exist
         self.height = GRID_SIZE
         self.absorbed_judge = 0
 
