@@ -1,0 +1,18 @@
+########vvv############
+#      W   W          
+#      W   W         
+#      W   W        
+#      W   W         
+#      W   W         
+       W   W       
+       W   W          
+ S     W   W            
+###    W   W
+#
+#                      #
+#    XXX         XXX   #
+#                      #
+#           YYY        #
+#                      #
+#DDDDDDDDDDDDDDDDDDDDDD#
+########################
