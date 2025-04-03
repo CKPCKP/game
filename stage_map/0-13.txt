@@ -7,7 +7,7 @@
 #MMMMM  M               
 #####M  M               
     #M  M                           
- S  #M  M            ###
+ S  #M  M           ####
 ### #M  M              #
 #   #M  M              #
 #   #M  M        YYY   #

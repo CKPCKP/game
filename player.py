@@ -15,35 +15,57 @@ class Player:
         self.alive = True
         self.save_point = (0,0,0,0)
         self.collected_coins = {}
+        self.can_be_laser = True
+        self.laser = None
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
-        previous_x = self.x
-        previous_y = self.y
-        # 横の移動
-        if pyxel.btn(pyxel.KEY_LEFT):
-            self.velocity_x = -player_speed
-            self.x -= player_speed
-            self.direction = "LEFT"
-        if pyxel.btn(pyxel.KEY_RIGHT):
-            self.velocity_x = player_speed
-            self.x += player_speed
-            self.direction = "RIGHT"
-
-        # ジャンプ処理
-        if self.velocity_y == 0 and pyxel.btnp(pyxel.KEY_SPACE) and self.on_ground:
-            self.velocity_y = jump_strength
-            self.on_ground = False
-
-        if self.velocity_y < 0:
-            self.velocity_y += gravity * 3
+        if self.laser:
+            print(self.x, self.y, self.laser.state)
+            if self.laser.state == "player":
+                self.laser = None
+                # self.adjust_position(self)
+            else:
+                if "UP" in self.laser.direction:
+                    self.y = self.laser.y
+                else:
+                    self.y = self.laser.y - GRID_SIZE
+                if "RIGHT" in self.laser.direction:
+                    self.x = self.laser.x - GRID_SIZE
+                else:
+                    self.x = self.laser.x
+                self.velocity_x = 0
+                self.velocity_y = 0
+                velocity_x_yappari = self.velocity_x
+                velocity_y_yappari = self.velocity_y
+                return
         else:
-            self.velocity_y += gravity
-        self.velocity_y = min(self.velocity_y, max_gravity)
+            previous_x = self.x
+            previous_y = self.y
+            # 横の移動
+            if pyxel.btn(pyxel.KEY_LEFT):
+                self.velocity_x = -player_speed
+                self.x -= player_speed
+                self.direction = "LEFT"
+            if pyxel.btn(pyxel.KEY_RIGHT):
+                self.velocity_x = player_speed
+                self.x += player_speed
+                self.direction = "RIGHT"
 
-        # プレイヤーの位置更新
-        self.y += self.velocity_y
-        velocity_y_yappari = self.velocity_y
-        velocity_x_yappari = self.velocity_x
+            # ジャンプ処理
+            if self.velocity_y == 0 and pyxel.btnp(pyxel.KEY_SPACE) and self.on_ground:
+                self.velocity_y = jump_strength
+                self.on_ground = False
+
+            if self.velocity_y < 0:
+                self.velocity_y += gravity * 3
+            else:
+                self.velocity_y += gravity
+            self.velocity_y = min(self.velocity_y, max_gravity)
+
+            # プレイヤーの位置更新
+            self.y += self.velocity_y
+            velocity_y_yappari = self.velocity_y
+            velocity_x_yappari = self.velocity_x
 
         collided_list = []
         for collidable in collidables:
@@ -59,10 +81,11 @@ class Player:
                 self.x = previous_x + velocity_x_yappari
 
     def draw(self):
-        if self.direction == "RIGHT":
-            pyxel.blt(self.x, self.y, 0, 0, 0, 16, 16, 0)
-        elif self.direction == "LEFT":
-            pyxel.blt(self.x, self.y, 0, 0, 0, -16, 16, 0)
+        if not self.laser:
+            if self.direction == "RIGHT":
+                pyxel.blt(self.x, self.y, 0, 0, 0, 16, 16, 0)
+            elif self.direction == "LEFT":
+                pyxel.blt(self.x, self.y, 0, 0, 0, -16, 16, 0)
 
         # レーザーを描画
         for laser in self.lasers:
@@ -120,3 +143,18 @@ class Player:
             if self.collected_coins[k] == "kari":
                 self.collected_coins[k] = "fixed"
                 k.collected = "fixed"
+    
+    def be_laser(self, laser_class):
+        if self.direction == "RIGHT":
+            laser = laser_class(
+                self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_RIGHT", "transforming_player"
+            )
+        elif self.direction == "LEFT":
+            laser = laser_class(
+                self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_LEFT", "transforming_player"
+            )
+        self.laser = laser
+        self.lasers.append(self.laser)
+    
+    def adjust_position():
+        return

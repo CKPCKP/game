@@ -5,7 +5,7 @@ from config import GRID_SIZE
 
 
 class Laser:
-    def __init__(self, x, y, direction, laser_lifetime, laser_length, laser_speed):
+    def __init__(self, x, y, direction, laser_lifetime, laser_length, laser_speed, state="laser"):
         self.x = int(x)
         self.y = int(y)
         self.direction = direction
@@ -14,11 +14,17 @@ class Laser:
         self.segments = [(x, y)]
         self.laser_speed = laser_speed
         self.laser_length = laser_length
+        self.state = state
 
     def update(self, collidables):
         # レーザーの生存時間を1減らす
-        if not self.active:
-            return
+        if self.active <= 1:
+            if self.state == "laser" or self.state == "player":
+                return
+            if self.state == "transforming_player":
+                print("ok")
+                self.state = "player"
+                return
         self.active -= 1
 
         # 衝突判定を先に行う
@@ -30,14 +36,18 @@ class Laser:
             self.segments.pop(0)
 
     def draw(self):
-        if not self.active:
+        if self.active <= 1:
             return
 
+        if self.state == "laser":
+            color = 8
+        elif self.state == "transforming_player" or self.state == "player":
+            color = 13
         # レーザーを描画（セグメントを描画）
         for i in range(len(self.segments) - 1):
             x1, y1 = self.segments[i]
             x2, y2 = self.segments[i + 1]
-            pyxel.line(x1, y1, x2, y2, 8)
+            pyxel.line(x1, y1, x2, y2, color)
 
     def check_collision(self, blocks):
         temp_segments = []

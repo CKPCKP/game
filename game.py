@@ -52,6 +52,13 @@ class Game:
 
         for laser in self.player.lasers:
             laser.update(current_stage.collidables)
+        
+        if self.player.can_be_laser and not self.player.laser and pyxel.btnp(pyxel.KEY_X):
+            self.player.be_laser(
+                lambda x, y, direction, state: Laser(
+                    x, y, direction, LASER_LIFETIME, LASER_LENGTH, LASER_SPEED, state
+                )
+            )
 
         if pyxel.btnp(pyxel.KEY_Z):
             self.player.shoot_laser(
