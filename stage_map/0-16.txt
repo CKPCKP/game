@@ -1,0 +1,18 @@
+########################
+####vvvvvvvvvvvvvvvvv###
+###MYYYMXXXMYYYYMXXXXM##
+###M   M   M    M    M##
+###M   M   M    M    M##
+###M   M   M    M    M##
+###M   M   M    M    M##
+###M   M   M    X    Y
+###M   M   Y    X    Y
+###M   M   Y    X    ###
+###M   M   Y    #    ###
+###M   X  ##    #    ###
+###M   X  ##    #    ###
+       #####    #    ###
+ S     #####    #    ###
+############    #    ###
+############DDDD#DDDD###
+########################

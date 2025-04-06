@@ -1,18 +1,18 @@
-###MMMMMMMMMMM
-###M
-###M
-###M
-###M
-###M
-###M           D
-               <
- S             <
-###XXX         <
-#          
-#
-# 
+###MMMMMMMMMMM##########
+###M                ####
+###M                ####
+###M                ####
+###M                ####
+###M                ####
+###M           D    ####
+               <    ####
+ S             <    ####
+###XXX         <    ####
+#                   ####
+#                   ####
+#                   ####
 #           YYY
 #
-#
-#
-#DDDDDDDDDDDDDDDDDDDDDDD
+#                  #####
+#                  #####
+#DDDDDDDDDDDDDDDDDD#####

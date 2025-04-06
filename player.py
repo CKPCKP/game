@@ -6,7 +6,7 @@ from save_point import SavePoint
 class Player:
     def __init__(self, screen_height):
         self.x = GRID_SIZE
-        self.y = screen_height - GRID_SIZE * 2
+        self.y = screen_height - GRID_SIZE * 4
         self.velocity_x = 0
         self.velocity_y = 0
         self.lasers = []
@@ -79,6 +79,7 @@ class Player:
             elif collided_list[0][1] == collided_list[1][1]:
                 self.velocity_x = velocity_x_yappari
                 self.x = previous_x + velocity_x_yappari
+        self.erase_inactive_laser()
 
     def draw(self):
         if not self.laser:
@@ -92,6 +93,8 @@ class Player:
             laser.draw()
 
     def shoot_laser(self, laser_class):
+        if len(self.lasers) >= 2:
+            return
         if self.direction == "RIGHT":
             laser = laser_class(
                 self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_LEFT"
@@ -158,3 +161,8 @@ class Player:
     
     def adjust_position():
         return
+    
+    def erase_inactive_laser(self):
+        for laser in self.lasers:
+            if laser.active <= 1:
+                self.lasers.remove(laser)

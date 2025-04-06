@@ -12,7 +12,7 @@
 ####                  ##
 ####DDDDDDDD   DDDDDDD##
 ####gggggggggggggggggg##
-####                  X 
-                      X 
- S               D    X 
+####                 X 
+                     X 
+ S               D   X 
 ########################
