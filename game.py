@@ -18,15 +18,18 @@ from config import (
 )
 from save_point import SavePoint  # 追加
 
-
 class Game:
     def __init__(self):
-        pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=FPS, title="Laser Shooting Game")
+        #pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=FPS, title="Laser Shooting Game")
+        pyxel.load("resources/music.pyxres")
+        pyxel.playm(0, loop=True)
         pyxel.load("resources/player.pyxres")  # リソースファイルを読み込む
         self.player = Player(SCREEN_HEIGHT)
         self.current_stage_index_x = 16
         self.current_stage_index_y = 0
         self.stages = self.load_stages("stage_map")
+        self.paused = False  # ポーズ状態を管理するフラグ
+        self.menu_index = 0  # メニューの選択インデックス
 
         pyxel.run(self.update, self.draw)
 
@@ -41,6 +44,15 @@ class Game:
         return stages
 
     def update(self):
+        if pyxel.btnp(pyxel.KEY_P):  # Pキーでポーズ/解除
+            self.paused = not self.paused
+
+        if self.paused:
+            self.update_pause_menu()
+        else:
+            self.update_game()
+
+    def update_game(self):
         current_stage = self.stages[
             (self.current_stage_index_y, self.current_stage_index_x)
         ]
@@ -100,13 +112,37 @@ class Game:
             ].reset()
             self.player.revive()
 
+    def update_pause_menu(self):
+        if pyxel.btnp(pyxel.KEY_UP):
+            self.menu_index = (self.menu_index - 1) % 3
+        if pyxel.btnp(pyxel.KEY_DOWN):
+            self.menu_index = (self.menu_index + 1) % 3
+        if pyxel.btnp(pyxel.KEY_RETURN):
+            if self.menu_index == 0:  # Continue
+                self.paused = False
+            elif self.menu_index == 1:  # Options
+                # オプション画面の処理を追加
+                pass
+            elif self.menu_index == 2:  # Quit
+                pyxel.quit()
+
     def draw(self):
         pyxel.cls(0)
+        if self.paused:
+            self.draw_pause_menu()
+        else:
+            self.draw_game()
+
+    def draw_game(self):
         self.player.draw()
         current_stage = self.stages[
             (self.current_stage_index_y, self.current_stage_index_x)
         ]
         current_stage.draw()
 
-
-Game()
+    def draw_pause_menu(self):
+        pyxel.text(60, 40, "PAUSE MENU", pyxel.frame_count % 16)
+        options = ["Continue", "Options", "Quit"]
+        for i, option in enumerate(options):
+            color = 7 if i == self.menu_index else 6
+            pyxel.text(60, 60 + i * 10, option, color)

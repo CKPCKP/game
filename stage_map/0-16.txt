@@ -1,16 +1,16 @@
 ########################
 ####vvvvvvvvvvvvvvvvv###
-###MYYYMXXXMYYYYMXXXXM##
-###M   M   M    M    M##
-###M   M   M    M    M##
-###M   M   M    M    M##
-###M   M   M    M    M##
-###M   M   M    X    Y
-###M   M   Y    X    Y
-###M   M   Y    X    ###
-###M   M   Y    #    ###
-###M   X  ##    #    ###
-###M   X  ##    #    ###
+###WYYYWXXXWYYYYWXXXXW##
+###W   W   W    W    W##
+###W   W   W    W    W##
+###W   W   W    W    W##
+###W   W   W    W    W##
+###W   W   W    X    Y
+###W   W   Y    X    Y
+###W   W   Y    X    ###
+###W   W   Y    #    ###
+###W   X  ##    #    ###
+###W   X  ##    #    ###
        #####    #    ###
  S     #####    #    ###
 ############    #    ###
