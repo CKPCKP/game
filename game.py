@@ -21,9 +21,8 @@ from save_point import SavePoint  # 追加
 class Game:
     def __init__(self):
         #pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=FPS, title="Laser Shooting Game")
-        pyxel.load("resources/music.pyxres")
-        pyxel.playm(0, loop=True)
-        pyxel.load("resources/player.pyxres")  # リソースファイルを読み込む
+        pyxel.load("resources/pyxel_resource.pyxres") # リソースファイルを読み込む
+        pyxel.playm(0, loop=True) 
         self.player = Player(SCREEN_HEIGHT)
         self.current_stage_index_x = 16
         self.current_stage_index_y = 0

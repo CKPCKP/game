@@ -95,6 +95,7 @@ class Player:
     def shoot_laser(self, laser_class):
         if len(self.lasers) >= 2:
             return
+        pyxel.play(3, 63, loop=False, resume=True)
         if self.direction == "RIGHT":
             laser = laser_class(
                 self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_LEFT"
