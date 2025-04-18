@@ -22,7 +22,6 @@ class Laser:
             if self.state == "laser" or self.state == "player":
                 return
             if self.state == "transforming_player":
-                print("ok")
                 self.state = "player"
                 return
         self.active -= 1
@@ -36,7 +35,7 @@ class Laser:
             self.segments.pop(0)
 
     def draw(self):
-        if self.active <= 1:
+        if self.active <= 0:
             return
 
         if self.state == "laser":

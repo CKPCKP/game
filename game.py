@@ -24,7 +24,7 @@ class Game:
         pyxel.load("resources/pyxel_resource.pyxres") # リソースファイルを読み込む
         pyxel.playm(0, loop=True) 
         self.player = Player(SCREEN_HEIGHT)
-        self.current_stage_index_x = 16
+        self.current_stage_index_x = 17
         self.current_stage_index_y = 0
         self.stages = self.load_stages("stage_map")
         self.paused = False  # ポーズ状態を管理するフラグ
@@ -78,30 +78,38 @@ class Game:
                 )
             )
 
+        stage_changed = False
         # プレイヤーが画面の右端に到達したら次のステージに切り替え
         if self.player.x >= SCREEN_WIDTH - GRID_SIZE:
+            stage_changed = True
             self.current_stage_index_x = (self.current_stage_index_x + 1) % len(
                 self.stages
             )
             self.player.x -= SCREEN_WIDTH - GRID_SIZE * 2
 
         if self.player.x < 0:
+            stage_changed = True
             self.current_stage_index_x = (self.current_stage_index_x - 1) % len(
                 self.stages
             )
             self.player.x += SCREEN_WIDTH - GRID_SIZE * 2
 
         if self.player.y >= SCREEN_HEIGHT - GRID_SIZE:
+            stage_changed = True
             self.current_stage_index_y = (self.current_stage_index_y + 1) % len(
                 self.stages
             )
             self.player.y -= SCREEN_HEIGHT - GRID_SIZE * 2
 
         if self.player.y < 0:
+            stage_changed = True
             self.current_stage_index_y = (self.current_stage_index_y - 1) % len(
                 self.stages
             )
             self.player.y += SCREEN_HEIGHT - GRID_SIZE * 2
+        
+        if stage_changed:
+            self.player.erase_inactive_laser(all=True)
 
         if self.player.alive == False:
             self.current_stage_index_x = self.player.save_point[1]

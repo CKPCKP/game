@@ -31,8 +31,10 @@ class Gate(Block):
             self.does_exist = self.does_exist ^ True
         if self.does_exist:
             self.collide_with_laser = "ABSORB"
+            self.collide_with_player = True
         else:
             self.collide_with_laser = "TRANSPARENT"
+            self.collide_with_player = False
 
     def draw(self):
         if self.does_exist:

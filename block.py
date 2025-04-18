@@ -33,36 +33,33 @@ class Block:
 
     def check_collision(self, player):
         if not self.collide_with_player:
-            return
+            return None
         # プレイヤーとブロックの境界
         player_right = player.x + GRID_SIZE
         player_bottom = player.y + GRID_SIZE
         block_right = self.x + self.width
         block_bottom = self.y + self.height
 
-        # 衝突しているか確認
-        if (
-            player.x < block_right
-            and player_right > self.x
-            and player.y < block_bottom
-            and player_bottom > self.y
-        ):
-            # 上からの衝突
-            if player.y + GRID_SIZE - player.velocity_y <= self.y:
-                player.y = self.y - GRID_SIZE
-                player.velocity_y = 0
-                player.on_ground = True
+        if (player.x < block_right and player_right > self.x and
+            player.y < block_bottom and player_bottom > self.y):
+            # x軸, y軸の重なり（オーバーラップ）の深さを計算
+            overlap_x = min(player_right, block_right) - max(player.x, self.x)
+            overlap_y = min(player_bottom, block_bottom) - max(player.y, self.y)
 
-            # 下からの衝突
-            elif player.y - player.velocity_y >= self.y + self.height:
-                player.y = self.y + self.height
-                player.velocity_y = max(player.velocity_y, 0)
-
-            # 左からの衝突
-            elif player.x + GRID_SIZE - player.velocity_x <= self.x:
-                player.x = self.x - GRID_SIZE
-
-            # 右からの衝突
-            elif player.x - player.velocity_x <= block_right:
-                player.x = block_right
-            return (self.x, self.y)
+            if overlap_x < overlap_y:
+                # 横方向の衝突
+                player_center_x = player.x + GRID_SIZE / 2
+                block_center_x = self.x + self.width / 2
+                if player_center_x < block_center_x:
+                    return ("LEFT", self)
+                else:
+                    return ("RIGHT", self)
+            else:
+                # 縦方向の衝突
+                player_center_y = player.y + GRID_SIZE / 2
+                block_center_y = self.y + self.height / 2
+                if player_center_y < block_center_y:
+                    return ("TOP", self)
+                else:
+                    return ("BOTTOM", self)
+        return None

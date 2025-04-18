@@ -3,7 +3,7 @@ import config
 
 class Menu:
     def __init__(self):
-        pyxel.init(config.SCREEN_WIDTH, config.SCREEN_HEIGHT, title="Menu")
+        pyxel.init(config.SCREEN_WIDTH, config.SCREEN_HEIGHT, fps=config.FPS, title="Menu")
         pyxel.run(self.update, self.draw)
 
     def update(self):
