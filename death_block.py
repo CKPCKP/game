@@ -17,10 +17,10 @@ class DeathBlock(Block):
         super().__init__(x, y, width, height, collide_with_player, collide_with_laser)
         self.start_position = start_position
 
-    def draw(self):
+    def draw(self, offset_x=0, offset_y=0):
         # デス・ブロックの色を設定
         block_color = 8  # 赤
-        pyxel.rect(self.x, self.y, self.width, self.height, block_color)
+        pyxel.rect(self.x + offset_x, self.y + offset_y, self.width, self.height, block_color)
 
     def check_collision(self, player):
         # プレイヤーとデス・ブロックの境界

@@ -36,11 +36,11 @@ class Gate(Block):
             self.collide_with_laser = "TRANSPARENT"
             self.collide_with_player = False
 
-    def draw(self):
+    def draw(self, offset_x=0, offset_y=0):
         if self.does_exist:
-            pyxel.rect(self.x, self.y, self.width, self.height, 14)
+            pyxel.rect(self.x + offset_x, self.y + offset_y, self.width, self.height, 14)
         else:
-            self.draw_dashed_rect(self.x, self.y, self.width, self.height, 7)
+            self.draw_dashed_rect(self.x + offset_x, self.y + offset_y, self.width, self.height, 7)
 
     def check_collision(self, player):
         if self.does_exist:

@@ -18,32 +18,32 @@ class FlagBlock(Block):
         self.absorb_side = absorb_side
         self.absorbed = 0
 
-    def draw(self):
+    def draw(self, offset_x=0, offset_y=0):
         # ブロックの共通色
         block_color = 9
         accent_color = 7
 
         # ブロックを描画
-        pyxel.rect(self.x, self.y, self.width, self.height, block_color)
+        pyxel.rect(self.x + offset_x, self.y + offset_y, self.width, self.height, block_color)
 
         # 吸収面に応じたアクセント色を設定
         if self.absorb_side == "TOP":
-            pyxel.line(self.x, self.y, self.x + self.width - 1, self.y, accent_color)
+            pyxel.line(self.x + offset_x, self.y + offset_y, self.x + offset_x + self.width - 1, self.y + offset_y, accent_color)
         elif self.absorb_side == "BOTTOM":
             pyxel.line(
-                self.x,
-                self.y + self.height,
-                self.x + self.width - 1,
-                self.y + self.height,
+                self.x + offset_x,
+                self.y + offset_y + self.height,
+                self.x + offset_x + self.width - 1,
+                self.y + offset_y + self.height,
                 accent_color,
             )
         elif self.absorb_side == "LEFT":
-            pyxel.line(self.x, self.y, self.x, self.y + self.height - 1, accent_color)
+            pyxel.line(self.x + offset_x, self.y + offset_y, self.x + offset_x, self.y + offset_y + self.height - 1, accent_color)
         elif self.absorb_side == "RIGHT":
             pyxel.line(
-                self.x + self.width - 1,
-                self.y,
-                self.x + self.width - 1,
-                self.y + self.height - 1,
+                self.x + offset_x + self.width - 1,
+                self.y + offset_y,
+                self.x + offset_x + self.width - 1,
+                self.y + offset_y + self.height - 1,
                 accent_color,
             )

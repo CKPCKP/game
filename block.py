@@ -25,11 +25,11 @@ class Block:
     def update(self):
         pass
 
-    def draw(self):
+    def draw(self, offset_x=0, offset_y=0):
         if self.collide_with_player:
-            pyxel.rect(self.x, self.y, self.width, self.height, self.color)
+            pyxel.rect(self.x + offset_x, self.y + offset_y, self.width, self.height, self.color)
         else:
-            pyxel.rectb(self.x, self.y, self.width, self.height, self.color)
+            pyxel.rectb(self.x + offset_x, self.y + offset_y, self.width, self.height, self.color)
 
     def check_collision(self, player):
         if not self.collide_with_player:

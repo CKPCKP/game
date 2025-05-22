@@ -1,12 +1,13 @@
 import pyxel
 from config import GRID_SIZE
+from death_block import DeathBlock
 from save_point import SavePoint
 
 
 class Player:
     def __init__(self, screen_height):
         self.x = GRID_SIZE
-        self.y = screen_height - GRID_SIZE * 10
+        self.y = screen_height - GRID_SIZE * 2
         self.velocity_x = 0
         self.velocity_y = 0
         self.lasers = []
@@ -19,9 +20,8 @@ class Player:
         self.laser = None
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
-        previous_x = self.x
-        previous_y = self.y
         if self.laser:
+            # 吸着中は移動ストップ＆位置合わせだけ
             self.velocity_x = 0
             self.velocity_y = 0
             if self.laser.state == "player":
@@ -36,7 +36,8 @@ class Player:
                     self.x = self.laser.x - GRID_SIZE
                 else:
                     self.x = self.laser.x
-                return
+                self.erase_inactive_laser()
+            return
                 # 水平移動
         self.velocity_x = 0
         if pyxel.btn(pyxel.KEY_LEFT):
@@ -98,14 +99,12 @@ class Player:
 
         self.erase_inactive_laser()
 
-    def draw(self):
+    def draw(self, offset_x=0, offset_y=0):
         if not self.laser:
             if self.direction == "RIGHT":
-                pyxel.blt(self.x, self.y, 0, 0, 0, 16, 16, 0)
-            elif self.direction == "LEFT":
-                pyxel.blt(self.x, self.y, 0, 0, 0, -16, 16, 0)
-
-        # レーザーを描画する
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 0, 0, 0, 16, 16, 0)
+            else:
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 0, 0, 0, -16, 16, 0)
         for laser in self.lasers:
             laser.draw()
 
@@ -139,6 +138,7 @@ class Player:
     def revive(self):
         self.alive = True
         self.lasers = []
+        self.laser = None
         self.x = self.save_point[2]
         self.y = self.save_point[3]
         self.velocity_x = 0
@@ -164,9 +164,11 @@ class Player:
         self.lasers.append(self.laser)
 
     def adjust_position(self):
+        self.x = (self.x // GRID_SIZE) * GRID_SIZE
+        self.y = (self.y // GRID_SIZE) * GRID_SIZE
         return
 
     def erase_inactive_laser(self, all=False):
         for laser in self.lasers:
-            if all or laser.active <= 1:
+            if laser != self.laser and (all or laser.active <= 1):
                 self.lasers.remove(laser)

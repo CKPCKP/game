@@ -1,6 +1,7 @@
 import pyxel
 from block import Block
 from flag_block import FlagBlock
+from death_block import DeathBlock
 from config import GRID_SIZE
 
 
@@ -15,6 +16,7 @@ class Laser:
         self.laser_speed = laser_speed
         self.laser_length = laser_length
         self.state = state
+        self.hit_death = False
 
     def update(self, collidables):
         # レーザーの生存時間を1減らす
@@ -63,8 +65,23 @@ class Laser:
             self.x = temp_segments[i][0]
             self.y = temp_segments[i][1]
             for block in blocks:
-                if block.collide_with_laser == "TRANSPARENT":
+                # TRANSPARENT（素通り）ブロックは無視して素通りさせる
+                if getattr(block, "collide_with_laser", None) == "TRANSPARENT":
                     continue
+                if block.collide_with_laser == "ABSORB":
+                    br = block.x + block.width
+                    bb = block.y + block.height
+                    # 境界 or 内部にいたら吸収
+                    if ((block.x <= self.x <= br and self.y in (block.y, bb))
+                            or (block.y <= self.y <= bb and self.x in (block.x, br))
+                            or (block.x < self.x < br and block.y < self.y < bb)):
+                        # DeathBlock にいたらフラグON
+                        if isinstance(block, DeathBlock):
+                            self.hit_death = True
+                        self.active = min(self.active, 1)
+                        if isinstance(block, FlagBlock):
+                            block.absorbed += 1
+                        return temp_segments
                 block_right = block.x + block.width
                 block_bottom = block.y + block.height
 

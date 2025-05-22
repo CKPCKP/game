@@ -179,8 +179,8 @@ class Stage:
     def reset(self):
         self.__init__(self.map, self.index_x, self.index_y)
 
-    def draw(self):
+    def draw(self, offset_x=0, offset_y=0):
         for collidable in self.collidables:
-            collidable.draw()
+            collidable.draw(offset_x, offset_y)
         for coin in self.coins:
-            coin.draw()
+            coin.draw(offset_x, offset_y)

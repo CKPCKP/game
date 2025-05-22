@@ -18,17 +18,21 @@ from config import (
 )
 from save_point import SavePoint  # 追加
 
+DEATH_ANIMATION_FRAMES = FPS // 2
+DEATH_SHAKE_AMPLITUDE = 2
+
 class Game:
     def __init__(self):
         #pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=FPS, title="Laser Shooting Game")
         pyxel.load("resources/pyxel_resource.pyxres") # リソースファイルを読み込む
-        pyxel.playm(0, loop=True) 
+        #pyxel.playm(0, loop=True) 
         self.player = Player(SCREEN_HEIGHT)
-        self.current_stage_index_x = 17
+        self.current_stage_index_x = 23
         self.current_stage_index_y = 0
         self.stages = self.load_stages("stage_map")
         self.paused = False  # ポーズ状態を管理するフラグ
         self.menu_index = 0  # メニューの選択インデックス
+        self.death_timer = 0  # デスアニメーション用タイマー
 
         pyxel.run(self.update, self.draw)
 
@@ -43,13 +47,17 @@ class Game:
         return stages
 
     def update(self):
-        if pyxel.btnp(pyxel.KEY_P):  # Pキーでポーズ/解除
-            self.paused = not self.paused
-
-        if self.paused:
-            self.update_pause_menu()
+        if self.death_timer > 0:
+            # デスアニメーション中は専用更新
+            self.update_death_animation()
         else:
-            self.update_game()
+            if pyxel.btnp(pyxel.KEY_P):  # Pキーでポーズ/解除
+                self.paused = not self.paused
+
+            if self.paused:
+                self.update_pause_menu()
+            else:
+                self.update_game()
 
     def update_game(self):
         current_stage = self.stages[
@@ -63,6 +71,12 @@ class Game:
 
         for laser in self.player.lasers:
             laser.update(current_stage.collidables)
+        # レーザー更新 & DeathBlock 衝突を検知
+        for laser in self.player.lasers:
+            laser.update(current_stage.collidables)
+            if laser.hit_death and laser.state != "laser":
+                self.player.alive = False
+                break
         
         if self.player.can_be_laser and not self.player.laser and pyxel.btnp(pyxel.KEY_X):
             self.player.be_laser(
@@ -109,15 +123,12 @@ class Game:
             self.player.y += SCREEN_HEIGHT - GRID_SIZE * 2
         
         if stage_changed:
+            self.player.laser = None
             self.player.erase_inactive_laser(all=True)
 
-        if self.player.alive == False:
-            self.current_stage_index_x = self.player.save_point[1]
-            self.current_stage_index_y = self.player.save_point[0]
-            self.stages[
-                (self.current_stage_index_y, self.current_stage_index_x)
-            ].reset()
-            self.player.revive()
+        # 死亡を検知してデスアニメーションを開始
+        if not self.player.alive and self.death_timer == 0:
+            self.death_timer = DEATH_ANIMATION_FRAMES
 
     def update_pause_menu(self):
         if pyxel.btnp(pyxel.KEY_UP):
@@ -137,6 +148,11 @@ class Game:
         pyxel.cls(0)
         if self.paused:
             self.draw_pause_menu()
+        elif self.death_timer > DEATH_ANIMATION_FRAMES // 2:
+            # デスアニメーション中は専用更新
+            self.draw_death_animation()
+        elif self.death_timer > 0:
+            self.draw_death_animation(shake=0)
         else:
             self.draw_game()
 
@@ -153,3 +169,29 @@ class Game:
         for i, option in enumerate(options):
             color = 7 if i == self.menu_index else 6
             pyxel.text(60, 60 + i * 10, option, color)
+    
+    def update_death_animation(self):
+        # デスアニメーション処理（カウントダウンし、終了時にリスポーン）
+        self.death_timer -= 1
+        if self.death_timer == 0:
+            # リスポーン処理
+            self.current_stage_index_x = self.player.save_point[1]
+            self.current_stage_index_y = self.player.save_point[0]
+            self.stages[
+                (self.current_stage_index_y, self.current_stage_index_x)
+            ].reset()
+            self.player.revive()
+
+    def draw_death_animation(self, shake=DEATH_SHAKE_AMPLITUDE):
+        dx = pyxel.rndi(-shake, shake)
+        dy = pyxel.rndi(-shake, shake)
+        # オフセット付きでステージ＆プレイヤーを描画
+        self.draw_game_with_offset(dx, dy)
+
+    # オフセット付き描画用メソッド
+    def draw_game_with_offset(self, offset_x, offset_y):
+        self.player.draw(offset_x, offset_y)
+        current_stage = self.stages[
+            (self.current_stage_index_y, self.current_stage_index_x)
+        ]
+        current_stage.draw(offset_x, offset_y)

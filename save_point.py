@@ -9,9 +9,11 @@ class SavePoint(Block):
         self.x = x
         self.y = y
         self.collide_with_laser = "TRANSPARENT"
+        self.width = GRID_SIZE
+        self.height = GRID_SIZE
 
-    def draw(self):
-        pyxel.rectb(self.x, self.y, GRID_SIZE, GRID_SIZE, 4)  # 保存ポイントを描画
+    def draw(self, offset_x=0, offset_y=0):
+        pyxel.rectb(self.x + offset_x, self.y + offset_y, GRID_SIZE, GRID_SIZE, 4)  # 保存ポイントを描画
 
     def check_collision(self, player):
         player_right = player.x + GRID_SIZE
