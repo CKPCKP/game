@@ -34,6 +34,6 @@ class DeathBlock(Block):
             player.x < block_right
             and player_right > self.x
             and player.y < block_bottom
-            and player_bottom > self.y
+            and player_bottom >= self.y
         ):
             player.alive = False

@@ -52,8 +52,8 @@ class Laser:
 
     def check_collision(self, blocks):
         temp_segments = []
-        collided_blocks_by_corner = []
         for i in range(self.laser_speed):
+            collided_blocks_by_corner = []
             if self.direction == "UP_RIGHT":
                 temp_segments.append((self.x + 1, self.y - 1))
             elif self.direction == "UP_LEFT":
@@ -120,24 +120,32 @@ class Laser:
                     and "RIGHT" in self.direction
                 ):
                     turn_laser(self, "HORIZONTAL")
+                    self.x = block.x - 1 if "LEFT" in self.direction else block.x + block.width + 1
+                    self.y = self.y - 1 if "UP" in self.direction else self.y + 1
                 elif (
                     self.x == block_right
                     and block.y < self.y < block_bottom
                     and "LEFT" in self.direction
                 ):
                     turn_laser(self, "HORIZONTAL")
+                    self.x = block.x - 1 if "LEFT" in self.direction else block.x + block.width + 1
+                    self.y = self.y - 1 if "UP" in self.direction else self.y + 1
                 elif (
                     self.y == block_bottom
                     and block.x < self.x < block_right
                     and "UP" in self.direction
                 ):
                     turn_laser(self, "VERTICAL")
+                    self.x = self.x - 1 if "LEFT" in self.direction else self.x + 1
+                    self.y = block.y - 1 if "UP" in self.direction else block.y + block.height + 1
                 elif (
                     self.y == block.y
                     and block.x < self.x < block_right
                     and "DOWN" in self.direction
                 ):
                     turn_laser(self, "VERTICAL")
+                    self.x = self.x - 1 if "LEFT" in self.direction else self.x + 1
+                    self.y = block.y - 1 if "UP" in self.direction else block.y + block.height + 1
                 # 隅に当たった場合の処理
                 elif self.x in (block.x, block_right) and self.y in (
                     block.y,

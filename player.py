@@ -7,7 +7,7 @@ from save_point import SavePoint
 class Player:
     def __init__(self, screen_height):
         self.x = GRID_SIZE
-        self.y = screen_height - GRID_SIZE * 2
+        self.y = screen_height - GRID_SIZE * 7
         self.velocity_x = 0
         self.velocity_y = 0
         self.lasers = []
@@ -36,6 +36,32 @@ class Player:
                     self.x = self.laser.x - GRID_SIZE
                 else:
                     self.x = self.laser.x
+                for block in collidables:
+                    if not getattr(block, "collide_with_player", False):
+                        continue
+                    pl, pr = self.x, self.x + GRID_SIZE
+                    pt, pb = self.y, self.y + GRID_SIZE
+                    bl, br = block.x, block.x + block.width
+                    bt, bb = block.y, block.y + block.height
+                    # AABB 判定
+                    if pl < br and pr > bl and pt < bb and pb > bt:
+                        overlap_x = min(pr, br) - max(pl, bl)
+                        overlap_y = min(pb, bb) - max(pt, bt)
+                        # 小さいほうの方向へだけ移動
+                        if overlap_x < overlap_y:
+                            cx  = self.x + GRID_SIZE / 2
+                            bcx = block.x + block.width / 2
+                            if cx < bcx:
+                                self.x -= overlap_x
+                            else:
+                                self.x += overlap_x
+                        else:
+                            cy  = self.y + GRID_SIZE / 2
+                            bcy = block.y + block.height / 2
+                            if cy < bcy:
+                                self.y -= overlap_y
+                            else:
+                                self.y += overlap_y
                 self.erase_inactive_laser()
             return
                 # 水平移動
