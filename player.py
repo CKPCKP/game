@@ -7,7 +7,7 @@ from save_point import SavePoint
 class Player:
     def __init__(self, screen_height):
         self.x = GRID_SIZE
-        self.y = screen_height - GRID_SIZE * 7
+        self.y = screen_height - GRID_SIZE * 4
         self.velocity_x = 0
         self.velocity_y = 0
         self.lasers = []
@@ -16,7 +16,7 @@ class Player:
         self.alive = True
         self.save_point = (0, 0, 0, 0)
         self.collected_coins = {}
-        self.can_be_laser = True
+        self.can_be_laser = False
         self.laser = None
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
@@ -161,6 +161,22 @@ class Player:
             for laser in self.lasers:
                 laser.check_get_coin(coin)
 
+    def check_get_potion(self, can_be_laser_potions):
+        for can_be_laser_potion in can_be_laser_potions:
+            if can_be_laser_potion.collected:
+                return
+
+            player_right = self.x + GRID_SIZE
+            player_bottom = self.y + GRID_SIZE
+            can_be_laser_potion_right = can_be_laser_potion.x + GRID_SIZE
+            can_be_laser_potion_bottom = can_be_laser_potion.y + GRID_SIZE
+
+            # 衝突判定
+            if can_be_laser_potion.x < player_right and can_be_laser_potion_right > self.x and can_be_laser_potion.y < player_bottom and can_be_laser_potion_bottom > self.y:
+                self.can_be_laser = True
+                can_be_laser_potion.collected = True
+                self.can_be_laser = True
+
     def revive(self):
         self.alive = True
         self.lasers = []
@@ -188,6 +204,7 @@ class Player:
             laser = laser_class(self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_LEFT", "transforming_player")
         self.laser = laser
         self.lasers.append(self.laser)
+        self.can_be_laser
 
     def adjust_position(self):
         self.x = (self.x // GRID_SIZE) * GRID_SIZE

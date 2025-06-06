@@ -1,4 +1,5 @@
 from block import Block
+from can_be_laser_potion import CanBeLaserPotion
 from flag_block import FlagBlock
 from gate import Gate
 from config import GRID_SIZE
@@ -11,6 +12,7 @@ class Stage:
     def __init__(self, ascii_map, index_x, index_y, block_size=GRID_SIZE):
         self.collidables = []
         self.coins = []
+        self.can_be_laser_potions = []
         self.block_size = block_size
         self.start_position = None
         self.map = ascii_map
@@ -170,6 +172,13 @@ class Stage:
                         )
                     
                     )
+                elif char == "P":
+                    self.can_be_laser_potions.append(
+                        CanBeLaserPotion(
+                            block_x,
+                            block_y
+                        )
+                    )
                     
 
     def update(self):
@@ -184,3 +193,6 @@ class Stage:
             collidable.draw(offset_x, offset_y)
         for coin in self.coins:
             coin.draw(offset_x, offset_y)
+        for can_be_laser_potion in self.can_be_laser_potions:
+            can_be_laser_potion.draw(offset_x, offset_y)
+        

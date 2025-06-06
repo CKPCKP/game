@@ -46,7 +46,7 @@ class Block:
             overlap_x = min(player_right, block_right) - max(player.x, self.x)
             overlap_y = min(player_bottom, block_bottom) - max(player.y, self.y)
 
-            if overlap_x < overlap_y:
+            if overlap_x <= overlap_y:
                 # 横方向の衝突
                 player_center_x = player.x + GRID_SIZE / 2
                 block_center_x = self.x + self.width / 2

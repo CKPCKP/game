@@ -27,8 +27,8 @@ class Game:
         pyxel.load("resources/pyxel_resource.pyxres") # リソースファイルを読み込む
         #pyxel.playm(0, loop=True) 
         self.player = Player(SCREEN_HEIGHT)
-        self.current_stage_index_x = 23
-        self.current_stage_index_y = 0
+        self.current_stage_index_x = 0
+        self.current_stage_index_y = 1
         self.stages = self.load_stages("stage_map")
         self.paused = False  # ポーズ状態を管理するフラグ
         self.menu_index = 0  # メニューの選択インデックス
@@ -68,6 +68,7 @@ class Game:
             PLAYER_SPEED, JUMP_STRENGTH, GRAVITY, MAX_GRAVITY, current_stage.collidables
         )
         self.player.check_get_coin(current_stage.coins)
+        self.player.check_get_potion(current_stage.can_be_laser_potions)
 
         for laser in self.player.lasers:
             laser.update(current_stage.collidables)
@@ -123,6 +124,7 @@ class Game:
             self.player.y += SCREEN_HEIGHT - GRID_SIZE * 2
         
         if stage_changed:
+            print(self.current_stage_index_x, self.current_stage_index_y)
             self.player.laser = None
             self.player.erase_inactive_laser(all=True)
 

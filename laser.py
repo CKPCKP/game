@@ -80,82 +80,65 @@ class Laser:
                             self.hit_death = True
                         self.active = min(self.active, 1)
                         if isinstance(block, FlagBlock):
-                            block.absorbed += 1
-                        return temp_segments
-                block_right = block.x + block.width
-                block_bottom = block.y + block.height
-
-                # 吸収ブロックの場合の特別な処理
-                if block.collide_with_laser == "ABSORB":
-                    if (
-                        (
-                            "BOTTOM" in block.absorb_side
-                            and self.y == block_bottom
-                            and block.x <= self.x <= block_right
-                        )
-                        or (
-                            "TOP" in block.absorb_side
-                            and self.y == block.y
-                            and block.x <= self.x <= block_right
-                        )
-                        or (
-                            "LEFT" in block.absorb_side
-                            and self.x == block.x
-                            and block.y <= self.y <= block_bottom
-                        )
-                        or (
-                            "RIGHT" in block.absorb_side
-                            and self.x == block_right
-                            and block.y <= self.y <= block_bottom
-                        )
-                    ):
-                        self.active = min(self.active, 1)
-                        if isinstance(block, FlagBlock):
-                            block.absorbed += 1
+                            if (
+                                (
+                                    "BOTTOM" in block.absorb_side
+                                    and self.y == bb
+                                    and block.x <= self.x <= br
+                                )
+                                or (
+                                    "TOP" in block.absorb_side
+                                    and self.y == block.y
+                                    and block.x <= self.x <= br
+                                )
+                                or (
+                                    "LEFT" in block.absorb_side
+                                    and self.x == block.x
+                                    and block.y <= self.y <= bb
+                                )
+                                or (
+                                    "RIGHT" in block.absorb_side
+                                    and self.x == br
+                                    and block.y <= self.y <= bb
+                                )
+                            ):
+                                block.absorbed += 1
                         return temp_segments
 
                 if (
                     self.x == block.x
-                    and block.y < self.y < block_bottom
+                    and block.y < self.y < bb
                     and "RIGHT" in self.direction
                 ):
-                    turn_laser(self, "HORIZONTAL")
-                    self.x = block.x - 1 if "LEFT" in self.direction else block.x + block.width + 1
-                    self.y = self.y - 1 if "UP" in self.direction else self.y + 1
+                    turn_laser(self, "HORIZONTAL", block)
                 elif (
-                    self.x == block_right
-                    and block.y < self.y < block_bottom
+                    self.x == br
+                    and block.y < self.y < bb
                     and "LEFT" in self.direction
                 ):
-                    turn_laser(self, "HORIZONTAL")
-                    self.x = block.x - 1 if "LEFT" in self.direction else block.x + block.width + 1
-                    self.y = self.y - 1 if "UP" in self.direction else self.y + 1
+                    turn_laser(self, "HORIZONTAL", block)
                 elif (
-                    self.y == block_bottom
-                    and block.x < self.x < block_right
+                    self.y == bb
+                    and block.x < self.x < br
                     and "UP" in self.direction
                 ):
-                    turn_laser(self, "VERTICAL")
-                    self.x = self.x - 1 if "LEFT" in self.direction else self.x + 1
-                    self.y = block.y - 1 if "UP" in self.direction else block.y + block.height + 1
+                    turn_laser(self, "VERTICAL", block)
                 elif (
                     self.y == block.y
-                    and block.x < self.x < block_right
+                    and block.x < self.x < br
                     and "DOWN" in self.direction
                 ):
-                    turn_laser(self, "VERTICAL")
-                    self.x = self.x - 1 if "LEFT" in self.direction else self.x + 1
-                    self.y = block.y - 1 if "UP" in self.direction else block.y + block.height + 1
+                    turn_laser(self, "VERTICAL", block)
                 # 隅に当たった場合の処理
-                elif self.x in (block.x, block_right) and self.y in (
+                elif self.x in (block.x, br) and self.y in (
                     block.y,
-                    block_bottom,
+                    bb,
                 ):
                     collided_blocks_by_corner.append(block)
             if collided_blocks_by_corner:
                 if len(collided_blocks_by_corner) == 3:
-                    turn_laser(self, "HORIZONTAL")
-                    turn_laser(self, "VERTICAL")
+                    turn_laser(self, "HORIZONTAL", block)
+                    turn_laser(self, "VERTICAL", block)
                 elif len(collided_blocks_by_corner) == 1:
                     if "RIGHT" in self.direction:
                         next_x = self.x + 1
@@ -165,14 +148,14 @@ class Laser:
                         next_y = self.y + 1
                     else:
                         next_y = self.y - 1
-                    if (block.x < next_x < block_right
-                    and block.y < next_y < block_bottom):
-                        turn_laser(self, "HORIZONTAL")
-                        turn_laser(self, "VERTICAL")
+                    if (block.x < next_x < br
+                    and block.y < next_y < bb):
+                        turn_laser(self, "HORIZONTAL", block)
+                        turn_laser(self, "VERTICAL", block)
                 elif collided_blocks_by_corner[0].x == collided_blocks_by_corner[1].x:
-                    turn_laser(self, "HORIZONTAL")
+                    turn_laser(self, "HORIZONTAL", collided_blocks_by_corner[0])
                 elif collided_blocks_by_corner[0].y == collided_blocks_by_corner[1].y:
-                    turn_laser(self, "VERTICAL")
+                    turn_laser(self, "VERTICAL", collided_blocks_by_corner[0])
 
         return temp_segments
     
@@ -197,7 +180,7 @@ class Laser:
         return False 
 
 
-def turn_laser(self, direction):
+def turn_laser(self, direction, block):
     if direction == "HORIZONTAL":
         if self.direction == "UP_RIGHT":
             self.direction = "UP_LEFT"
@@ -207,6 +190,8 @@ def turn_laser(self, direction):
             self.direction = "DOWN_LEFT"
         elif self.direction == "DOWN_LEFT":
             self.direction = "DOWN_RIGHT"
+        self.x = block.x - 1 if "LEFT" in self.direction else block.x + block.width + 1
+        self.y = self.y - 1 if "UP" in self.direction else self.y + 1
     elif direction == "VERTICAL":
         if self.direction == "UP_RIGHT":
             self.direction = "DOWN_RIGHT"
@@ -216,3 +201,6 @@ def turn_laser(self, direction):
             self.direction = "UP_RIGHT"
         elif self.direction == "DOWN_LEFT":
             self.direction = "UP_LEFT"
+        self.x = self.x - 1 if "LEFT" in self.direction else self.x + 1
+        self.y = block.y - 1 if "UP" in self.direction else block.y + block.height + 1
+    
