@@ -28,7 +28,7 @@ class Game:
         #pyxel.playm(0, loop=True) 
         self.player = Player(SCREEN_HEIGHT)
         self.current_stage_index_x = 0
-        self.current_stage_index_y = 1
+        self.current_stage_index_y = 0
         self.stages = self.load_stages("stage_map")
         self.paused = False  # ポーズ状態を管理するフラグ
         self.menu_index = 0  # メニューの選択インデックス
@@ -79,7 +79,7 @@ class Game:
                 self.player.alive = False
                 break
         
-        if self.player.can_be_laser and not self.player.laser and pyxel.btnp(pyxel.KEY_X):
+        if self.player.can_be_laser == "OK" and not self.player.laser and pyxel.btnp(pyxel.KEY_X):
             self.player.be_laser(
                 lambda x, y, direction, state: Laser(
                     x, y, direction, LASER_LIFETIME, LASER_LENGTH, LASER_SPEED, state

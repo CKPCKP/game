@@ -1,5 +1,5 @@
 import pyxel
-from config import GRID_SIZE
+from config import GRID_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH
 from death_block import DeathBlock
 from save_point import SavePoint
 
@@ -86,7 +86,7 @@ class Player:
                 self.y + GRID_SIZE > collidable.y):
                 if self.velocity_x > 0:
                     self.x = collidable.x - GRID_SIZE
-                elif self.velocity_x < 0:
+                elif self.velocity_x < 0 or (self.velocity_x == 0 and self.laser == None):
                     self.x = collidable.x + collidable.width
                 self.velocity_x = 0
 
@@ -173,9 +173,8 @@ class Player:
 
             # 衝突判定
             if can_be_laser_potion.x < player_right and can_be_laser_potion_right > self.x and can_be_laser_potion.y < player_bottom and can_be_laser_potion_bottom > self.y:
-                self.can_be_laser = True
+                self.can_be_laser = "OK"
                 can_be_laser_potion.collected = True
-                self.can_be_laser = True
 
     def revive(self):
         self.alive = True
@@ -204,7 +203,7 @@ class Player:
             laser = laser_class(self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_LEFT", "transforming_player")
         self.laser = laser
         self.lasers.append(self.laser)
-        self.can_be_laser
+        self.can_be_laser = "used"
 
     def adjust_position(self):
         self.x = (self.x // GRID_SIZE) * GRID_SIZE
@@ -212,6 +211,12 @@ class Player:
         return
 
     def erase_inactive_laser(self, all=False):
-        for laser in self.lasers:
-            if laser != self.laser and (all or laser.active <= 1):
+        for laser in list(self.lasers):  # コピーを使って安全に削除
+            # 自機に吸着中のレーザーは除外
+            if laser == self.laser:
+                continue
+            # 非アクティブ or 画面外に出たレーザーを除去
+            if all or laser.active <= 1 \
+               or laser.x < 0 or laser.x >= SCREEN_WIDTH \
+               or laser.y < 0 or laser.y >= SCREEN_HEIGHT:
                 self.lasers.remove(laser)

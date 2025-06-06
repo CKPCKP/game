@@ -68,9 +68,9 @@ class Laser:
                 # TRANSPARENT（素通り）ブロックは無視して素通りさせる
                 if getattr(block, "collide_with_laser", None) == "TRANSPARENT":
                     continue
+                br = block.x + block.width
+                bb = block.y + block.height
                 if block.collide_with_laser == "ABSORB":
-                    br = block.x + block.width
-                    bb = block.y + block.height
                     # 境界 or 内部にいたら吸収
                     if ((block.x <= self.x <= br and self.y in (block.y, bb))
                             or (block.y <= self.y <= bb and self.x in (block.x, br))
@@ -130,10 +130,7 @@ class Laser:
                 ):
                     turn_laser(self, "VERTICAL", block)
                 # 隅に当たった場合の処理
-                elif self.x in (block.x, br) and self.y in (
-                    block.y,
-                    bb,
-                ):
+                elif self.x in (block.x, br) and self.y in (block.y, bb):
                     collided_blocks_by_corner.append(block)
             if collided_blocks_by_corner:
                 if len(collided_blocks_by_corner) == 3:
