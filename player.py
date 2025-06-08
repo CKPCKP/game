@@ -18,6 +18,7 @@ class Player:
         self.collected_coins = {}
         self.can_be_laser = False
         self.laser = None
+        self.just_saved = False  # セーブポイントに触れたかどうか
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
         if self.laser:
@@ -195,6 +196,7 @@ class Player:
             if self.collected_coins[k] == "kari":
                 self.collected_coins[k] = "fixed"
                 k.collected = "fixed"
+        self.just_saved = True
 
     def be_laser(self, laser_class):
         if self.direction == "RIGHT":

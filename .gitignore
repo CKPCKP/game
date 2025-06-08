@@ -10,3 +10,5 @@ __pycache__/
 
 # for Mac
 .DS_Store
+
+saves/

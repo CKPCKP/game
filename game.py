@@ -17,22 +17,30 @@ from config import (
     MAX_GRAVITY,
 )
 from save_point import SavePoint  # 追加
+from save_manager import list_slots, load_slot, save_slot
 
 DEATH_ANIMATION_FRAMES = FPS // 2
 DEATH_SHAKE_AMPLITUDE = 2
 
 class Game:
-    def __init__(self):
-        #pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, fps=FPS, title="Laser Shooting Game")
-        pyxel.load("resources/pyxel_resource.pyxres") # リソースファイルを読み込む
-        #pyxel.playm(0, loop=True) 
+    def __init__(self, slot_index=None, slot_data=None):
+        # window の初期化(pyxel.init)は menu.py で行われる
+        pyxel.load("resources/pyxel_resource.pyxres")
+        # ... 既存の player, stages, timers 初期化 ...
         self.player = Player(SCREEN_HEIGHT)
         self.current_stage_index_x = 0
         self.current_stage_index_y = 0
         self.stages = self.load_stages("stage_map")
-        self.paused = False  # ポーズ状態を管理するフラグ
-        self.menu_index = 0  # メニューの選択インデックス
-        self.death_timer = 0  # デスアニメーション用タイマー
+        self.paused = False
+        self.menu_index = 0
+        self.death_timer = 0
+
+        # menu.py から渡されたセーブスロット情報で新規 or ロード
+        self.current_slot = slot_index
+        if slot_data is None:
+            self.new_game(self.current_slot)
+        else:
+            self._load_save_data(slot_data)
 
         pyxel.run(self.update, self.draw)
 
@@ -48,12 +56,10 @@ class Game:
 
     def update(self):
         if self.death_timer > 0:
-            # デスアニメーション中は専用更新
             self.update_death_animation()
         else:
-            if pyxel.btnp(pyxel.KEY_P):  # Pキーでポーズ/解除
+            if pyxel.btnp(pyxel.KEY_P):
                 self.paused = not self.paused
-
             if self.paused:
                 self.update_pause_menu()
             else:
@@ -124,13 +130,19 @@ class Game:
             self.player.y += SCREEN_HEIGHT - GRID_SIZE * 2
         
         if stage_changed:
-            print(self.current_stage_index_x, self.current_stage_index_y)
             self.player.laser = None
             self.player.erase_inactive_laser(all=True)
+            if self.player.can_be_laser == "used":
+                self.player.can_be_laser = "OK"
 
         # 死亡を検知してデスアニメーションを開始
         if not self.player.alive and self.death_timer == 0:
             self.death_timer = DEATH_ANIMATION_FRAMES
+
+        # セーブポイントに触れたときだけ保存
+        if self.current_slot is not None and getattr(self.player, "just_saved", False):
+            self.save_to_disk()
+            self.player.just_saved = False
 
     def update_pause_menu(self):
         if pyxel.btnp(pyxel.KEY_UP):
@@ -151,12 +163,69 @@ class Game:
         if self.paused:
             self.draw_pause_menu()
         elif self.death_timer > DEATH_ANIMATION_FRAMES // 2:
-            # デスアニメーション中は専用更新
             self.draw_death_animation()
         elif self.death_timer > 0:
             self.draw_death_animation(shake=0)
         else:
             self.draw_game()
+    
+ 
+    def new_game(self, slot_index):
+        # 全ステージをリセットして Player を初期化
+        self.current_stage_index_x = 0
+        self.current_stage_index_y = 0
+        for st in self.stages.values():
+            st.reset()
+        self.player = Player(SCREEN_HEIGHT)
+        # プレイヤー初期位置を save_point に登録
+        self.player.save_point = (0, 0, self.player.x, self.player.y)
+        # 空データで即セーブ
+        self.save_to_disk()
+
+    def _load_save_data(self, data):
+        sp = data["save_point"]
+        # セーブポイント＆ステージ復元
+        self.current_stage_index_y, self.current_stage_index_x = sp["stage"]
+        px, py = sp["pos"]
+        px, py = sp["pos"]
+        # セーブポイント座標をplayer.save_pointに登録
+        self.player.save_point = (self.current_stage_index_x, self.current_stage_index_y, px, py)
+        # プレイヤーの画面上の位置を復元
+        self.player.x = px
+        self.player.y = py
+        self.player.can_be_laser = data["player_can_be_laser"]
+        # コイン復元
+        for key, flags in data["collected_coins"].items():
+            sy, sx = map(int, key.split("-"))
+            stage = self.stages[(sy, sx)]
+            for coin, collected in zip(stage.coins, flags):
+                coin.collected = collected
+                if collected:
+                    self.player.collected_coins[coin] = "fixed"
+        # ポーション復元
+        for key, flags in data["collected_potions"].items():
+            sy, sx = map(int, key.split("-"))
+            stage = self.stages[(sy, sx)]
+            for pot, collected in zip(stage.can_be_laser_potions, flags):
+                pot.collected = collected
+
+    def save_to_disk(self):
+        data = {
+            "save_point": {
+                "stage": [self.current_stage_index_y, self.current_stage_index_x],
+                "pos":   [self.player.save_point[2], self.player.save_point[3]],
+            },
+            "player_can_be_laser": self.player.can_be_laser,
+            "collected_coins": {
+                f"{y}-{x}": [coin.collected for coin in stage.coins]
+                for (y, x), stage in self.stages.items()
+            },
+            "collected_potions": {
+                f"{y}-{x}": [pot.collected for pot in stage.can_be_laser_potions]
+                for (y, x), stage in self.stages.items()
+            },
+        }
+        save_slot(self.current_slot, data)
 
     def draw_game(self):
         self.player.draw()
