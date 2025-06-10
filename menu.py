@@ -1,6 +1,6 @@
 import pyxel
 import config
-from save_manager import list_slots, load_slot
+from save_manager import delete_slot, list_slots, load_slot
 
 class Menu:
     def __init__(self):
@@ -8,7 +8,8 @@ class Menu:
         pyxel.init(config.SCREEN_WIDTH, config.SCREEN_HEIGHT, fps=config.FPS, title="Laser Shooting Game")
         # スロット一覧取得
         self.slots = list_slots()      # [ None or dict, … ]
-        self.selected_slot = 0         # カーソル位置
+        self.selected_slot = 0
+        self.confirming_delete = False
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -24,6 +25,17 @@ class Menu:
             import game
             # Game にスロット情報を渡して起動
             game.Game(slot_index, slot_data)
+        
+        if pyxel.btnp(pyxel.KEY_C):
+            if self.slots[self.selected_slot] is not None:
+                if not self.confirming_delete:
+                    # 初回押下で確認モードへ
+                    self.confirming_delete = True
+                else:
+                    # 再度押下で削除して一覧更新
+                    delete_slot(self.selected_slot)
+                    self.slots = list_slots()
+                    self.confirming_delete = False
 
     def draw(self):
         pyxel.cls(0)
@@ -35,9 +47,12 @@ class Menu:
                 pyxel.text(40, y, f"Slot {i+1}: Empty", color)
             else:
                 sp = slot["save_point"]
-                coins = sum(sum(flags) for flags in slot["collected_coins"].values())
+                coins = sum(sum([1 if flags else 0]) for flags in slot["collected_coins"].values())
                 pots  = sum(sum(flags) for flags in slot["collected_potions"].values())
                 pyxel.text(40, y, f"Slot {i+1}: Stage{sp['stage']} coins:{coins} pots:{pots}", color)
+        if self.confirming_delete and self.slots[self.selected_slot] is not None:
+            pyxel.text(30, 120, "Press C again to confirm delete", 8)
+
 
 if __name__ == "__main__":
     Menu()

@@ -30,3 +30,8 @@ def load_slot(slot_index):
     path = os.path.join(SAVE_DIR, f"slot_{slot_index}.json")
     with open(path, "r") as f:
         return json.load(f)
+
+def delete_slot(slot_index):
+    path = os.path.join(SAVE_DIR, f"slot_{slot_index}.json")
+    if os.path.exists(path):
+        os.remove(path)

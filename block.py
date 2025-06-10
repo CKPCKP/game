@@ -27,7 +27,12 @@ class Block:
 
     def draw(self, offset_x=0, offset_y=0):
         if self.collide_with_player:
-            pyxel.rect(self.x + offset_x, self.y + offset_y, self.width, self.height, self.color)
+            if self.collide_with_laser == "ABSORB":
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 0, 16, 0, 16, 16, 0)
+            elif self.collide_with_laser == "REFLECT":
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 0, 32, 0, 16, 16, 0)
+            elif self.collide_with_laser == "TRANSPARENT":
+                pyxel.rect(self.x + offset_x, self.y + offset_y, self.width, self.height, self.color)
         else:
             pyxel.rectb(self.x + offset_x, self.y + offset_y, self.width, self.height, self.color)
 
