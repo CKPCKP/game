@@ -193,7 +193,7 @@ class Game:
         # プレイヤーの画面上の位置を復元
         self.player.x = px
         self.player.y = py
-        self.player.can_be_laser = data["player_can_be_laser"]
+        self.player.can_be_laser = "OK" if data.get("player_can_be_laser") else False
         # コイン復元
         for key, flags in data["collected_coins"].items():
             sy, sx = map(int, key.split("-"))
