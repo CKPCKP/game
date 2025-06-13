@@ -185,6 +185,8 @@ class Player:
         self.y = self.save_point[3]
         self.velocity_x = 0
         self.velocity_y = 0
+        if self.can_be_laser == "used":
+            self.can_be_laser = "OK"
         for k in self.collected_coins.keys():
             if self.collected_coins[k] == "kari":
                 k.collected = ""

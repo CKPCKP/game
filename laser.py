@@ -134,9 +134,10 @@ class Laser:
                     collided_blocks_by_corner.append(block)
             if collided_blocks_by_corner:
                 if len(collided_blocks_by_corner) == 3:
-                    turn_laser(self, "HORIZONTAL", block)
-                    turn_laser(self, "VERTICAL", block)
+                    turn_laser(self,"BOTH", collided_blocks_by_corner[0])
                 elif len(collided_blocks_by_corner) == 1:
+                    block = collided_blocks_by_corner[0]
+                    print(self.x, self.y)
                     if "RIGHT" in self.direction:
                         next_x = self.x + 1
                     else:
@@ -145,10 +146,10 @@ class Laser:
                         next_y = self.y + 1
                     else:
                         next_y = self.y - 1
-                    if (block.x < next_x < br
-                    and block.y < next_y < bb):
-                        turn_laser(self, "HORIZONTAL", block)
-                        turn_laser(self, "VERTICAL", block)
+                    if (block.x < next_x < block.x + block.width
+                    and block.y < next_y < block.y + block.height):
+                        turn_laser(self, "BOTH", block)
+                    print(self.x, self.y)
                 elif collided_blocks_by_corner[0].x == collided_blocks_by_corner[1].x:
                     turn_laser(self, "HORIZONTAL", collided_blocks_by_corner[0])
                 elif collided_blocks_by_corner[0].y == collided_blocks_by_corner[1].y:
@@ -200,4 +201,14 @@ def turn_laser(self, direction, block):
             self.direction = "UP_LEFT"
         self.x = self.x - 1 if "LEFT" in self.direction else self.x + 1
         self.y = block.y - 1 if "UP" in self.direction else block.y + block.height + 1
-    
+    elif direction == "BOTH":
+        if self.direction == "UP_RIGHT":
+            self.direction = "DOWN_LEFT"
+        elif self.direction == "UP_LEFT":
+            self.direction = "DOWN_RIGHT"
+        elif self.direction == "DOWN_RIGHT":
+            self.direction = "UP_LEFT"
+        elif self.direction == "DOWN_LEFT":
+            self.direction = "UP_RIGHT"
+        self.x = self.x - 1 if "LEFT" in self.direction else self.x + 1
+        self.y = block.y - 1 if "UP" in self.direction else block.y + block.height + 1
