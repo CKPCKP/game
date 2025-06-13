@@ -66,6 +66,8 @@ class Game:
                 self.update_game()
 
     def update_game(self):
+        if pyxel.btnp(pyxel.KEY_R):
+            self.player.alive = False
         current_stage = self.stages[
             (self.current_stage_index_y, self.current_stage_index_x)
         ]
