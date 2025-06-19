@@ -230,11 +230,11 @@ class Game:
         save_slot(self.current_slot, data)
 
     def draw_game(self):
-        self.player.draw()
         current_stage = self.stages[
             (self.current_stage_index_y, self.current_stage_index_x)
         ]
         current_stage.draw()
+        self.player.draw()
 
     def draw_pause_menu(self):
         pyxel.text(60, 40, "PAUSE MENU", pyxel.frame_count % 16)

@@ -3,6 +3,51 @@ from block import Block
 from flag_block import FlagBlock
 from death_block import DeathBlock
 from config import GRID_SIZE
+import random
+import math
+
+# ─── パーティクル定義 ───────────────────────────────────────────────
+class Particle:
+    def __init__(self, x, y, vx, vy, lifetime, color):
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+        self.lifetime = lifetime
+        self.color = color
+
+    def update(self):
+        self.x += self.vx
+        self.y += self.vy
+        self.lifetime -= 1
+
+    def draw(self):
+        if self.lifetime > 0:
+            pyxel.pset(int(self.x), int(self.y), self.color)
+
+def direction_to_angle(dir_str1, dir_str2):
+    if "UP" in dir_str1 and "DOWN" in dir_str2:
+        return math.pi/2
+    if "DOWN" in dir_str1 and "UP" in dir_str2:
+        return -math.pi/2
+    if "LEFT" in dir_str1 and "RIGHT" in dir_str2:
+        return 0
+    if "RIGHT" in dir_str1 and "LEFT" in dir_str2:
+        return math.pi
+    return 0
+
+def spawn_particles(p_list, x, y, base_angle, color,
+                    count=5, spread=math.pi/8,
+                    speed_min=0.5, speed_max=1.5,
+                    life_min=5, life_max=10):
+    for _ in range(count):
+        a = base_angle + random.uniform(-spread, spread)
+        s = random.uniform(speed_min, speed_max)
+        vx = math.cos(a) * s
+        vy = math.sin(a) * s
+        life = random.randint(life_min, life_max)
+        p_list.append(Particle(x, y, vx, vy, life, color))
+
 
 
 class Laser:
@@ -17,6 +62,8 @@ class Laser:
         self.laser_length = laser_length
         self.state = state
         self.hit_death = False
+        self.particles = []
+        p_color = 8 if state == "laser" else 13
 
     def update(self, collidables):
         # レーザーの生存時間を1減らす
@@ -35,6 +82,11 @@ class Laser:
         # レーザーが一定の長さを超えたら古いセグメントを削除
         while len(self.segments) > self.laser_length:
             self.segments.pop(0)
+        
+        for p in list(self.particles):
+            p.update()
+            if p.lifetime <= 0:
+                self.particles.remove(p)
 
     def draw(self):
         if self.active <= 0:
@@ -49,6 +101,9 @@ class Laser:
             x1, y1 = self.segments[i]
             x2, y2 = self.segments[i + 1]
             pyxel.line(x1, y1, x2, y2, color)
+
+        for p in self.particles:
+            p.draw()
 
     def check_collision(self, blocks):
         temp_segments = []
@@ -137,7 +192,6 @@ class Laser:
                     turn_laser(self,"BOTH", collided_blocks_by_corner[0])
                 elif len(collided_blocks_by_corner) == 1:
                     block = collided_blocks_by_corner[0]
-                    print(self.x, self.y)
                     if "RIGHT" in self.direction:
                         next_x = self.x + 1
                     else:
@@ -149,7 +203,6 @@ class Laser:
                     if (block.x < next_x < block.x + block.width
                     and block.y < next_y < block.y + block.height):
                         turn_laser(self, "BOTH", block)
-                    print(self.x, self.y)
                 elif collided_blocks_by_corner[0].x == collided_blocks_by_corner[1].x:
                     turn_laser(self, "HORIZONTAL", collided_blocks_by_corner[0])
                 elif collided_blocks_by_corner[0].y == collided_blocks_by_corner[1].y:
@@ -179,6 +232,7 @@ class Laser:
 
 
 def turn_laser(self, direction, block):
+    old_dir = self.direction
     if direction == "HORIZONTAL":
         if self.direction == "UP_RIGHT":
             self.direction = "UP_LEFT"
@@ -212,3 +266,7 @@ def turn_laser(self, direction, block):
             self.direction = "UP_RIGHT"
         self.x = self.x - 1 if "LEFT" in self.direction else self.x + 1
         self.y = block.y - 1 if "UP" in self.direction else block.y + block.height + 1
+
+    spawn_particles(self.particles, self.x, self.y,
+                    direction_to_angle(old_dir, self.direction), 9,
+                    count=10, spread=math.pi/4)
