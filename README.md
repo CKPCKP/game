@@ -37,10 +37,11 @@ uv sync --no-dev
 
 保存先は`uv tool dir`で確認できます
 
-## 怠惰な君へ
-
-uv のインストール
+## How to build for Steam
 
 ```shell
-curl -LsSf https://astral.sh/uv/install.sh | sh
+$ uv run pyinstaller --onefile \
+--add-data "resources:resources" \
+--add-data "stage_map:stage_map" \
+menu.py
 ```
