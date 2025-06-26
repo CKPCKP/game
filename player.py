@@ -19,6 +19,7 @@ class Player:
         self.can_be_laser = False
         self.laser = None
         self.just_saved = False  # セーブポイントに触れたかどうか
+        self.frame = 0
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
         if self.laser:
@@ -127,11 +128,21 @@ class Player:
         self.erase_inactive_laser()
 
     def draw(self, offset_x=0, offset_y=0):
-        if not self.laser:
-            if self.direction == "RIGHT":
-                pyxel.blt(self.x + offset_x, self.y + offset_y, 0, 0, 0, 16, 16, 0)
+        self.frame += 1
+        if self.frame >= 30: self.frame = 0
+        w = GRID_SIZE if self.direction == "RIGHT" else -GRID_SIZE
+        if not self.laser and self.alive:
+            if not self.on_ground:
+                frame_index = 2
+            elif self.velocity_x != 0:
+                frame_index = ((self.frame // 4) % 2) * 2
             else:
-                pyxel.blt(self.x + offset_x, self.y + offset_y, 0, 0, 0, -16, 16, 0)
+                frame_index = 0 + (self.frame // 15)
+            
+            pyxel.blt(self.x + offset_x, self.y + offset_y, 0, 0, frame_index * GRID_SIZE, w, GRID_SIZE, 0)
+        elif not self.alive:
+            pyxel.blt(self.x + offset_x, self.y + offset_y, 0, 0, 0, w, GRID_SIZE, 0)
+        
         for laser in self.lasers:
             laser.draw()
 

@@ -78,8 +78,6 @@ class Game:
         self.player.check_get_coin(current_stage.coins)
         self.player.check_get_potion(current_stage.can_be_laser_potions)
 
-        for laser in self.player.lasers:
-            laser.update(current_stage.collidables)
         # レーザー更新 & DeathBlock 衝突を検知
         for laser in self.player.lasers:
             laser.update(current_stage.collidables)
