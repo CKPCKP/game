@@ -72,11 +72,6 @@ class Game:
             (self.current_stage_index_y, self.current_stage_index_x)
         ]
         current_stage.update()
-        self.player.update(
-            PLAYER_SPEED, JUMP_STRENGTH, GRAVITY, MAX_GRAVITY, current_stage.collidables
-        )
-        self.player.check_get_coin(current_stage.coins)
-        self.player.check_get_potion(current_stage.can_be_laser_potions)
 
         # レーザー更新 & DeathBlock 衝突を検知
         for laser in self.player.lasers:
@@ -84,6 +79,11 @@ class Game:
             if laser.hit_death and laser.state != "laser":
                 self.player.alive = False
                 break
+        self.player.update(
+            PLAYER_SPEED, JUMP_STRENGTH, GRAVITY, MAX_GRAVITY, current_stage.collidables
+        )
+        self.player.check_get_coin(current_stage.coins)
+        self.player.check_get_potion(current_stage.can_be_laser_potions)
         
         if self.player.can_be_laser == "OK" and not self.player.laser and pyxel.btnp(pyxel.KEY_X):
             self.player.be_laser(
@@ -101,36 +101,43 @@ class Game:
 
         stage_changed = False
         # プレイヤーが画面の右端に到達したら次のステージに切り替え
-        if self.player.x >= SCREEN_WIDTH - GRID_SIZE:
+        if (self.player.laser and self.player.laser.x > SCREEN_WIDTH) or (not self.player.laser and self.player.x > SCREEN_WIDTH - GRID_SIZE):
             stage_changed = True
             self.current_stage_index_x = (self.current_stage_index_x + 1) % len(
                 self.stages
             )
-            self.player.x -= SCREEN_WIDTH - GRID_SIZE * 2
+            self.player.x -= SCREEN_WIDTH - GRID_SIZE
+            if self.player.laser:
+                self.player.laser.change_stage("RIGHT")
 
-        if self.player.x < 0:
+        elif (self.player.laser and self.player.laser.x < 0) or (not self.player.laser and self.player.x < 0):
             stage_changed = True
             self.current_stage_index_x = (self.current_stage_index_x - 1) % len(
                 self.stages
             )
-            self.player.x += SCREEN_WIDTH - GRID_SIZE * 2
+            self.player.x += SCREEN_WIDTH - GRID_SIZE
+            if self.player.laser:
+                self.player.laser.change_stage("LEFT")
 
-        if self.player.y >= SCREEN_HEIGHT - GRID_SIZE:
+        if (self.player.laser and self.player.laser.y > SCREEN_HEIGHT) or (not self.player.laser and self.player.y > SCREEN_HEIGHT - GRID_SIZE):
             stage_changed = True
             self.current_stage_index_y = (self.current_stage_index_y + 1) % len(
                 self.stages
             )
-            self.player.y -= SCREEN_HEIGHT - GRID_SIZE * 2
+            self.player.y -= SCREEN_WIDTH - GRID_SIZE
+            if self.player.laser:
+                self.player.laser.change_stage("DOWN")
 
-        if self.player.y < 0:
+        elif (self.player.laser and self.player.laser.y < 0) or (not self.player.laser and self.player.y < 0):
             stage_changed = True
             self.current_stage_index_y = (self.current_stage_index_y - 1) % len(
                 self.stages
             )
-            self.player.y += SCREEN_HEIGHT - GRID_SIZE * 2
-        
+            self.player.y += SCREEN_WIDTH - GRID_SIZE
+            if self.player.laser:
+                self.player.laser.change_stage("UP")
+
         if stage_changed:
-            self.player.laser = None
             self.player.erase_inactive_laser(all=True)
             if self.player.can_be_laser == "used":
                 self.player.can_be_laser = "OK"

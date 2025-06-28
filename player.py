@@ -131,6 +131,9 @@ class Player:
         self.frame += 1
         if self.frame >= 30: self.frame = 0
         w = GRID_SIZE if self.direction == "RIGHT" else -GRID_SIZE
+        v = 0
+        if self.can_be_laser: v = 1
+        if self.can_be_laser == "used": v = 2
         if not self.laser and self.alive:
             if not self.on_ground:
                 frame_index = 2
@@ -139,12 +142,13 @@ class Player:
             else:
                 frame_index = 0 + (self.frame // 15)
             
-            pyxel.blt(self.x + offset_x, self.y + offset_y, 0, 0, frame_index * GRID_SIZE, w, GRID_SIZE, 0)
+            pyxel.blt(self.x + offset_x, self.y + offset_y, 0, v * 16, frame_index * GRID_SIZE, w, GRID_SIZE, 0)
         elif not self.alive:
-            pyxel.blt(self.x + offset_x, self.y + offset_y, 0, 0, 0, w, GRID_SIZE, 0)
+            pyxel.blt(self.x + offset_x, self.y + offset_y, 0, v * 16, 3 * GRID_SIZE, w, GRID_SIZE, 0)
         
         for laser in self.lasers:
-            laser.draw()
+            if laser != self.laser or self.alive:
+                laser.draw()
 
     def shoot_laser(self, laser_class):
         if len(self.lasers) >= 2:
@@ -231,7 +235,7 @@ class Player:
             if laser == self.laser:
                 continue
             # 非アクティブ or 画面外に出たレーザーを除去
-            if all or laser.active <= 1 \
-               or laser.x < 0 or laser.x >= SCREEN_WIDTH \
-               or laser.y < 0 or laser.y >= SCREEN_HEIGHT:
+            if all or laser.active <= 1: \
+            #    or laser.x < 0 or laser.x >= SCREEN_WIDTH \
+            #    or laser.y < 0 or laser.y >= SCREEN_HEIGHT
                 self.lasers.remove(laser)

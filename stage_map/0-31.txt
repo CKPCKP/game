@@ -1,6 +1,9 @@
 #M                    M#
 #M                    M#
 #M                    M#
+#MWWWWWWWWWWWWWWWWWWWWM#
+#M                    M#
+#MGGGGGGGGGGGGGGGGGGGGM#
 #M                    M#
 #M                    M#
 #M                    M#
@@ -10,9 +13,6 @@
 #M                    M#
 #M                    M#
 #M                    M#
-#M                    M#
-#M                    M#
-#MvvvvvvvvvvXXXXXXXXXXM#
 #M                    M#
 #M                    M#
 #M                    M#

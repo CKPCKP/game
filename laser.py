@@ -2,7 +2,7 @@ import pyxel
 from block import Block
 from flag_block import FlagBlock
 from death_block import DeathBlock
-from config import GRID_SIZE
+from config import GRID_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT
 import random
 import math
 
@@ -57,7 +57,7 @@ class Laser:
         self.direction = direction
         self.length = 0
         self.active = laser_lifetime
-        self.segments = [(x, y)]
+        self.segments = [[x, y]]
         self.laser_speed = laser_speed
         self.laser_length = laser_length
         self.state = state
@@ -110,13 +110,13 @@ class Laser:
         for i in range(self.laser_speed):
             collided_blocks_by_corner = []
             if self.direction == "UP_RIGHT":
-                temp_segments.append((self.x + 1, self.y - 1))
+                temp_segments.append([self.x + 1, self.y - 1])
             elif self.direction == "UP_LEFT":
-                temp_segments.append((self.x - 1, self.y - 1))
+                temp_segments.append([self.x - 1, self.y - 1])
             elif self.direction == "DOWN_RIGHT":
-                temp_segments.append((self.x + 1, self.y + 1))
+                temp_segments.append([self.x + 1, self.y + 1])
             elif self.direction == "DOWN_LEFT":
-                temp_segments.append((self.x - 1, self.y + 1))
+                temp_segments.append([self.x - 1, self.y + 1])
             self.x = temp_segments[i][0]
             self.y = temp_segments[i][1]
             for block in blocks:
@@ -229,6 +229,18 @@ class Laser:
             coin.collected = "not_saved"
             return True
         return False 
+    
+    def change_stage(self, direction):
+        for i in range(len(self.segments)):
+            if direction == "LEFT":
+                self.segments[i][0] += SCREEN_WIDTH
+            elif direction == "RIGHT":
+                self.segments[i][0] -= SCREEN_WIDTH
+            elif direction == "UP":
+                self.segments[i][1] += SCREEN_HEIGHT
+            elif direction == "DOWN":
+                self.segments[i][1] -= SCREEN_HEIGHT
+        self.x, self.y = self.segments[-1]
 
 
 def turn_laser(self, direction, block):
