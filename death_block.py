@@ -20,7 +20,7 @@ class DeathBlock(Block):
     def draw(self, offset_x=0, offset_y=0):
         # デス・ブロックの色を設定
         block_color = 8  # 赤
-        pyxel.rect(self.x + offset_x, self.y + offset_y, self.width, self.height, block_color)
+        pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 48, 0, 16, 16, 0)
 
     def check_collision(self, player):
         # プレイヤーとデス・ブロックの境界

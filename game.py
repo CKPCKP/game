@@ -1,5 +1,6 @@
 import pyxel
 import os
+from opening import Opening
 from player import Player
 from laser import Laser
 from stage import Stage
@@ -29,11 +30,13 @@ class Game:
         # ... 既存の player, stages, timers 初期化 ...
         self.player = Player(SCREEN_HEIGHT)
         self.current_stage_index_x = 0
-        self.current_stage_index_y = 0
+        self.current_stage_index_y = 10
         self.stages = self.load_stages("stage_map")
         self.paused = False
         self.menu_index = 0
         self.death_timer = 0
+        self.current_slot = slot_index
+        self.opening = None
 
         # menu.py から渡されたセーブスロット情報で新規 or ロード
         self.current_slot = slot_index
@@ -55,6 +58,9 @@ class Game:
         return stages
 
     def update(self):
+        if self.opening and self.opening.active:
+            self.opening.update()
+            return
         if self.death_timer > 0:
             self.update_death_animation()
         else:
@@ -124,7 +130,7 @@ class Game:
             self.current_stage_index_y = (self.current_stage_index_y + 1) % len(
                 self.stages
             )
-            self.player.y -= SCREEN_WIDTH - GRID_SIZE
+            self.player.y -= SCREEN_HEIGHT - GRID_SIZE
             if self.player.laser:
                 self.player.laser.change_stage("DOWN")
 
@@ -133,14 +139,12 @@ class Game:
             self.current_stage_index_y = (self.current_stage_index_y - 1) % len(
                 self.stages
             )
-            self.player.y += SCREEN_WIDTH - GRID_SIZE
+            self.player.y += SCREEN_HEIGHT - GRID_SIZE
             if self.player.laser:
                 self.player.laser.change_stage("UP")
 
         if stage_changed:
             self.player.erase_inactive_laser(all=True)
-            if self.player.can_be_laser == "used":
-                self.player.can_be_laser = "OK"
 
         # 死亡を検知してデスアニメーションを開始
         if not self.player.alive and self.death_timer == 0:
@@ -167,6 +171,10 @@ class Game:
 
     def draw(self):
         pyxel.cls(0)
+        if self.opening and self.opening.active:
+            self.opening.draw()
+            return
+
         if self.paused:
             self.draw_pause_menu()
         elif self.death_timer > DEATH_ANIMATION_FRAMES // 2:
@@ -180,7 +188,7 @@ class Game:
     def new_game(self, slot_index):
         # 全ステージをリセットして Player を初期化
         self.current_stage_index_x = 0
-        self.current_stage_index_y = 0
+        self.current_stage_index_y = 10
         for st in self.stages.values():
             st.reset()
         self.player = Player(SCREEN_HEIGHT)
@@ -188,6 +196,7 @@ class Game:
         self.player.save_point = (0, 0, self.player.x, self.player.y)
         # 空データで即セーブ
         self.save_to_disk()
+        self.opening = Opening()
 
     def _load_save_data(self, data):
         sp = data["save_point"]

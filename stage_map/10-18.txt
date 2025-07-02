@@ -7,7 +7,7 @@
 #YYYYY #DDDDDDDDDDDDD###
 #    MMMMMMMMMMMMMMMvvM#
 #    M              XXM#
-     M                M#
+#    M                M#
    MMM   MMMMMMMMMMMMMM#
      M                M#
  S   M                M#

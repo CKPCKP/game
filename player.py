@@ -7,7 +7,7 @@ from save_point import SavePoint
 class Player:
     def __init__(self, screen_height):
         self.x = GRID_SIZE
-        self.y = screen_height - GRID_SIZE * 4
+        self.y = screen_height - GRID_SIZE * 3
         self.velocity_x = 0
         self.velocity_y = 0
         self.lasers = []
@@ -140,8 +140,7 @@ class Player:
             elif self.velocity_x != 0:
                 frame_index = ((self.frame // 4) % 2) * 2
             else:
-                frame_index = 0 + (self.frame // 15)
-            
+                frame_index = self.frame // 15
             pyxel.blt(self.x + offset_x, self.y + offset_y, 0, v * 16, frame_index * GRID_SIZE, w, GRID_SIZE, 0)
         elif not self.alive:
             pyxel.blt(self.x + offset_x, self.y + offset_y, 0, v * 16, 3 * GRID_SIZE, w, GRID_SIZE, 0)
@@ -214,6 +213,8 @@ class Player:
                 self.collected_coins[k] = "fixed"
                 k.collected = "fixed"
         self.just_saved = True
+        if self.can_be_laser == "used":
+            self.can_be_laser = "OK"
 
     def be_laser(self, laser_class):
         if self.direction == "RIGHT":

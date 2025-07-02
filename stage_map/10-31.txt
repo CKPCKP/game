@@ -1,18 +1,18 @@
+##     #################
+#M                    M#
+#M                    M#
+#MBBB##BBBBBBBBBBBBBBBM#
+#M                    M#
+#M       ##           M#
+#M                    M#
+#M           ##       M#
+#M                    M#
+#MDDDDDDDDDDDDDDDgggggM#
 #M                    M#
 #M                    M#
 #M                    M#
-#MWWWWWWWWWWWWWWWWWWWWM#
 #M                    M#
-#MGGGGGGGGGGGGGGGGGGGGM#
-#M                    M#
-#M                    M#
-#M                    M#
-#M                    M#
-#M                    M#
-#M                    M#
-#M                    M#
-#M                    M#
-#M                    M#
+#MDDDDDDDDDDgggggDDDDDM#
 #M                    M#
 #M                    M#
 #M                    M#

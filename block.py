@@ -32,12 +32,12 @@ class Block:
             elif self.collide_with_laser == "REFLECT":
                 pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 16, 0, 16, 16, 0)
             elif self.collide_with_laser == "TRANSPARENT":
-                pyxel.rect(self.x + offset_x, self.y + offset_y, self.width, self.height, self.color)
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 32, 0, 16, 16, 0)
         else:
             if self.collide_with_laser == "REFLECT":
-                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 32, 0, 16, 16, 0)
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 32, 16, 16, 16, 0)
             else:
-                pyxel.rectb(self.x + offset_x, self.y + offset_y, self.width, self.height, self.color)
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 0, 32, 16, 16, 0)
 
     def check_collision(self, player):
         if not self.collide_with_player:
