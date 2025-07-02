@@ -2,12 +2,18 @@ import pyxel
 import config
 from save_manager import delete_slot, list_slots, load_slot
 
+
 class Menu:
     def __init__(self):
         # 初期ウィンドウ
-        pyxel.init(config.SCREEN_WIDTH, config.SCREEN_HEIGHT, fps=config.FPS, title="Laser Shooting Game")
+        pyxel.init(
+            config.SCREEN_WIDTH,
+            config.SCREEN_HEIGHT,
+            fps=config.FPS,
+            title="Laser Shooting Game",
+        )
         # スロット一覧取得
-        self.slots = list_slots()      # [ None or dict, … ]
+        self.slots = list_slots()  # [ None or dict, … ]
         self.selected_slot = 0
         self.confirming_delete = False
         pyxel.run(self.update, self.draw)
@@ -21,11 +27,12 @@ class Menu:
         # Enter でゲーム開始
         if pyxel.btnp(pyxel.KEY_RETURN):
             slot_index = self.selected_slot
-            slot_data  = self.slots[slot_index]  # None なら新規
+            slot_data = self.slots[slot_index]  # None なら新規
             import game
+
             # Game にスロット情報を渡して起動
             game.Game(slot_index, slot_data)
-        
+
         if pyxel.btnp(pyxel.KEY_C):
             if self.slots[self.selected_slot] is not None:
                 if not self.confirming_delete:
@@ -44,12 +51,20 @@ class Menu:
             y = 50 + i * 20
             color = 11 if i == self.selected_slot else 7
             if slot is None:
-                pyxel.text(40, y, f"Slot {i+1}: Empty", color)
+                pyxel.text(40, y, f"Slot {i + 1}: Empty", color)
             else:
                 sp = slot["save_point"]
-                coins = sum(sum([1 if flags else 0]) for flags in slot["collected_coins"].values())
-                pots  = sum(sum(flags) for flags in slot["collected_potions"].values())
-                pyxel.text(40, y, f"Slot {i+1}: Stage{sp['stage']} coins:{coins} pots:{pots}", color)
+                coins = sum(
+                    sum([1 if flags else 0])
+                    for flags in slot["collected_coins"].values()
+                )
+                pots = sum(sum(flags) for flags in slot["collected_potions"].values())
+                pyxel.text(
+                    40,
+                    y,
+                    f"Slot {i + 1}: Stage{sp['stage']} coins:{coins} pots:{pots}",
+                    color,
+                )
         if self.confirming_delete and self.slots[self.selected_slot] is not None:
             pyxel.text(30, 120, "Press C again to confirm delete", 8)
 

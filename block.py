@@ -48,8 +48,12 @@ class Block:
         block_right = self.x + self.width
         block_bottom = self.y + self.height
 
-        if (player.x < block_right and player_right > self.x and
-            player.y < block_bottom and player_bottom > self.y):
+        if (
+            player.x < block_right
+            and player_right > self.x
+            and player.y < block_bottom
+            and player_bottom > self.y
+        ):
             # x軸, y軸の重なり（オーバーラップ）の深さを計算
             overlap_x = min(player_right, block_right) - max(player.x, self.x)
             overlap_y = min(player_bottom, block_bottom) - max(player.y, self.y)

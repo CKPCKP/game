@@ -51,14 +51,14 @@ class Player:
                         overlap_y = min(pb, bb) - max(pt, bt)
                         # 小さいほうの方向へだけ移動
                         if overlap_x < overlap_y:
-                            cx  = self.x + GRID_SIZE / 2
+                            cx = self.x + GRID_SIZE / 2
                             bcx = block.x + block.width / 2
                             if cx < bcx:
                                 self.x -= overlap_x
                             else:
                                 self.x += overlap_x
                         else:
-                            cy  = self.y + GRID_SIZE / 2
+                            cy = self.y + GRID_SIZE / 2
                             bcy = block.y + block.height / 2
                             if cy < bcy:
                                 self.y -= overlap_y
@@ -66,7 +66,7 @@ class Player:
                                 self.y += overlap_y
                 self.erase_inactive_laser()
             return
-                # 水平移動
+            # 水平移動
         self.velocity_x = 0
         if pyxel.btn(pyxel.KEY_LEFT):
             self.velocity_x = -player_speed
@@ -82,13 +82,17 @@ class Player:
             if not getattr(collidable, "collide_with_player", False):
                 continue
             # AABB 判定
-            if (self.x < collidable.x + collidable.width and
-                self.x + GRID_SIZE > collidable.x and
-                self.y < collidable.y + collidable.height and
-                self.y + GRID_SIZE > collidable.y):
+            if (
+                self.x < collidable.x + collidable.width
+                and self.x + GRID_SIZE > collidable.x
+                and self.y < collidable.y + collidable.height
+                and self.y + GRID_SIZE > collidable.y
+            ):
                 if self.velocity_x > 0:
                     self.x = collidable.x - GRID_SIZE
-                elif self.velocity_x < 0 or (self.velocity_x == 0 and self.laser == None):
+                elif self.velocity_x < 0 or (
+                    self.velocity_x == 0 and self.laser == None
+                ):
                     self.x = collidable.x + collidable.width
                 self.velocity_x = 0
 
@@ -111,10 +115,12 @@ class Player:
             collidable.check_collision(self)
             if not getattr(collidable, "collide_with_player", False):
                 continue
-            if (self.x < collidable.x + collidable.width and
-                self.x + GRID_SIZE > collidable.x and
-                self.y < collidable.y + collidable.height and
-                self.y + GRID_SIZE > collidable.y):
+            if (
+                self.x < collidable.x + collidable.width
+                and self.x + GRID_SIZE > collidable.x
+                and self.y < collidable.y + collidable.height
+                and self.y + GRID_SIZE > collidable.y
+            ):
                 if self.velocity_y > 0:
                     # 床接地
                     self.y = collidable.y - GRID_SIZE
@@ -129,11 +135,14 @@ class Player:
 
     def draw(self, offset_x=0, offset_y=0):
         self.frame += 1
-        if self.frame >= 30: self.frame = 0
+        if self.frame >= 30:
+            self.frame = 0
         w = GRID_SIZE if self.direction == "RIGHT" else -GRID_SIZE
         v = 0
-        if self.can_be_laser: v = 1
-        if self.can_be_laser == "used": v = 2
+        if self.can_be_laser:
+            v = 1
+        if self.can_be_laser == "used":
+            v = 2
         if not self.laser and self.alive:
             if not self.on_ground:
                 frame_index = 2
@@ -141,10 +150,28 @@ class Player:
                 frame_index = ((self.frame // 4) % 2) * 2
             else:
                 frame_index = self.frame // 15
-            pyxel.blt(self.x + offset_x, self.y + offset_y, 0, v * 16, frame_index * GRID_SIZE, w, GRID_SIZE, 0)
+            pyxel.blt(
+                self.x + offset_x,
+                self.y + offset_y,
+                0,
+                v * 16,
+                frame_index * GRID_SIZE,
+                w,
+                GRID_SIZE,
+                0,
+            )
         elif not self.alive:
-            pyxel.blt(self.x + offset_x, self.y + offset_y, 0, v * 16, 3 * GRID_SIZE, w, GRID_SIZE, 0)
-        
+            pyxel.blt(
+                self.x + offset_x,
+                self.y + offset_y,
+                0,
+                v * 16,
+                3 * GRID_SIZE,
+                w,
+                GRID_SIZE,
+                0,
+            )
+
         for laser in self.lasers:
             if laser != self.laser or self.alive:
                 laser.draw()
@@ -154,9 +181,13 @@ class Player:
             return
         pyxel.play(3, 63, loop=False, resume=True)
         if self.direction == "RIGHT":
-            laser = laser_class(self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_LEFT")
+            laser = laser_class(
+                self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_LEFT"
+            )
         elif self.direction == "LEFT":
-            laser = laser_class(self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_RIGHT")
+            laser = laser_class(
+                self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_RIGHT"
+            )
         self.lasers.append(laser)
 
     def check_get_coin(self, coins):
@@ -170,7 +201,12 @@ class Player:
             coin_bottom = coin.y + GRID_SIZE
 
             # 衝突判定
-            if coin.x < player_right and coin_right > self.x and coin.y < player_bottom and coin_bottom > self.y:
+            if (
+                coin.x < player_right
+                and coin_right > self.x
+                and coin.y < player_bottom
+                and coin_bottom > self.y
+            ):
                 self.collected_coins[coin] = "kari"
                 coin.collected = "kari"
             for laser in self.lasers:
@@ -187,7 +223,12 @@ class Player:
             can_be_laser_potion_bottom = can_be_laser_potion.y + GRID_SIZE
 
             # 衝突判定
-            if can_be_laser_potion.x < player_right and can_be_laser_potion_right > self.x and can_be_laser_potion.y < player_bottom and can_be_laser_potion_bottom > self.y:
+            if (
+                can_be_laser_potion.x < player_right
+                and can_be_laser_potion_right > self.x
+                and can_be_laser_potion.y < player_bottom
+                and can_be_laser_potion_bottom > self.y
+            ):
                 self.can_be_laser = "OK"
                 can_be_laser_potion.collected = True
 
@@ -218,9 +259,19 @@ class Player:
 
     def be_laser(self, laser_class):
         if self.direction == "RIGHT":
-            laser = laser_class(self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_RIGHT", "transforming_player")
+            laser = laser_class(
+                self.x + GRID_SIZE // 2,
+                self.y + GRID_SIZE // 2,
+                "UP_RIGHT",
+                "transforming_player",
+            )
         elif self.direction == "LEFT":
-            laser = laser_class(self.x + GRID_SIZE // 2, self.y + GRID_SIZE // 2, "UP_LEFT", "transforming_player")
+            laser = laser_class(
+                self.x + GRID_SIZE // 2,
+                self.y + GRID_SIZE // 2,
+                "UP_LEFT",
+                "transforming_player",
+            )
         self.laser = laser
         self.lasers.append(self.laser)
         self.can_be_laser = "used"
@@ -236,7 +287,7 @@ class Player:
             if laser == self.laser:
                 continue
             # 非アクティブ or 画面外に出たレーザーを除去
-            if all or laser.active <= 1: \
-            #    or laser.x < 0 or laser.x >= SCREEN_WIDTH \
-            #    or laser.y < 0 or laser.y >= SCREEN_HEIGHT
+            if all or laser.active <= 1:
+                #    or laser.x < 0 or laser.x >= SCREEN_WIDTH \
+                #    or laser.y < 0 or laser.y >= SCREEN_HEIGHT
                 self.lasers.remove(laser)

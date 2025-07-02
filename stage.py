@@ -27,12 +27,14 @@ class Stage:
                 block_x = x * self.block_size
                 block_y = y * self.block_size
                 if char == "S":
-                    self.collidables.append(SavePoint(
-                        self.index_x,
-                        self.index_y,
-                        block_x,
-                        block_y,
-                    ))
+                    self.collidables.append(
+                        SavePoint(
+                            self.index_x,
+                            self.index_y,
+                            block_x,
+                            block_y,
+                        )
+                    )
                 elif char == "#":
                     self.collidables.append(
                         Block(
@@ -165,21 +167,9 @@ class Stage:
                         )
                     )
                 elif char == "C":
-                    self.coins.append(
-                        Coin(
-                            block_x,
-                            block_y
-                        )
-                    
-                    )
+                    self.coins.append(Coin(block_x, block_y))
                 elif char == "P":
-                    self.can_be_laser_potions.append(
-                        CanBeLaserPotion(
-                            block_x,
-                            block_y
-                        )
-                    )
-                    
+                    self.can_be_laser_potions.append(CanBeLaserPotion(block_x, block_y))
 
     def update(self):
         for collidable in self.collidables:
@@ -195,4 +185,3 @@ class Stage:
             coin.draw(offset_x, offset_y)
         for can_be_laser_potion in self.can_be_laser_potions:
             can_be_laser_potion.draw(offset_x, offset_y)
-        

@@ -2,11 +2,13 @@ import pyxel
 from config import FPS, PLAYER_SPEED, SCREEN_WIDTH, SCREEN_HEIGHT
 from player import Player
 
+
 class Opening:
     """
     オープニングムービー管理クラス。
     duration_seconds 秒間、または Z/X キー押下でスキップ可能。
     """
+
     def __init__(self, duration_seconds: int = 3):
         self.timer = FPS * duration_seconds
         self.active = True

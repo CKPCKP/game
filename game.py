@@ -23,6 +23,7 @@ from save_manager import list_slots, load_slot, save_slot
 DEATH_ANIMATION_FRAMES = FPS // 2
 DEATH_SHAKE_AMPLITUDE = 2
 
+
 class Game:
     def __init__(self, slot_index=None, slot_data=None):
         # window の初期化(pyxel.init)は menu.py で行われる
@@ -54,7 +55,9 @@ class Game:
                 filepath = os.path.join(directory, filename)
                 with open(filepath, "r") as file:
                     x, y = filename.removesuffix(".txt").split("-")
-                    stages[(int(x), int(y))] = Stage(file.read().splitlines(), int(x), int(y))
+                    stages[(int(x), int(y))] = Stage(
+                        file.read().splitlines(), int(x), int(y)
+                    )
         return stages
 
     def update(self):
@@ -90,8 +93,12 @@ class Game:
         )
         self.player.check_get_coin(current_stage.coins)
         self.player.check_get_potion(current_stage.can_be_laser_potions)
-        
-        if self.player.can_be_laser == "OK" and not self.player.laser and pyxel.btnp(pyxel.KEY_X):
+
+        if (
+            self.player.can_be_laser == "OK"
+            and not self.player.laser
+            and pyxel.btnp(pyxel.KEY_X)
+        ):
             self.player.be_laser(
                 lambda x, y, direction, state: Laser(
                     x, y, direction, LASER_LIFETIME, LASER_LENGTH, LASER_SPEED, state
@@ -107,7 +114,9 @@ class Game:
 
         stage_changed = False
         # プレイヤーが画面の右端に到達したら次のステージに切り替え
-        if (self.player.laser and self.player.laser.x > SCREEN_WIDTH) or (not self.player.laser and self.player.x > SCREEN_WIDTH - GRID_SIZE):
+        if (self.player.laser and self.player.laser.x > SCREEN_WIDTH) or (
+            not self.player.laser and self.player.x > SCREEN_WIDTH - GRID_SIZE
+        ):
             stage_changed = True
             self.current_stage_index_x = (self.current_stage_index_x + 1) % len(
                 self.stages
@@ -116,7 +125,9 @@ class Game:
             if self.player.laser:
                 self.player.laser.change_stage("RIGHT")
 
-        elif (self.player.laser and self.player.laser.x < 0) or (not self.player.laser and self.player.x < 0):
+        elif (self.player.laser and self.player.laser.x < 0) or (
+            not self.player.laser and self.player.x < 0
+        ):
             stage_changed = True
             self.current_stage_index_x = (self.current_stage_index_x - 1) % len(
                 self.stages
@@ -125,7 +136,9 @@ class Game:
             if self.player.laser:
                 self.player.laser.change_stage("LEFT")
 
-        if (self.player.laser and self.player.laser.y > SCREEN_HEIGHT) or (not self.player.laser and self.player.y > SCREEN_HEIGHT - GRID_SIZE):
+        if (self.player.laser and self.player.laser.y > SCREEN_HEIGHT) or (
+            not self.player.laser and self.player.y > SCREEN_HEIGHT - GRID_SIZE
+        ):
             stage_changed = True
             self.current_stage_index_y = (self.current_stage_index_y + 1) % len(
                 self.stages
@@ -134,7 +147,9 @@ class Game:
             if self.player.laser:
                 self.player.laser.change_stage("DOWN")
 
-        elif (self.player.laser and self.player.laser.y < 0) or (not self.player.laser and self.player.y < 0):
+        elif (self.player.laser and self.player.laser.y < 0) or (
+            not self.player.laser and self.player.y < 0
+        ):
             stage_changed = True
             self.current_stage_index_y = (self.current_stage_index_y - 1) % len(
                 self.stages
@@ -183,8 +198,7 @@ class Game:
             self.draw_death_animation(shake=0)
         else:
             self.draw_game()
-    
- 
+
     def new_game(self, slot_index):
         # 全ステージをリセットして Player を初期化
         self.current_stage_index_x = 0
@@ -205,7 +219,12 @@ class Game:
         px, py = sp["pos"]
         px, py = sp["pos"]
         # セーブポイント座標をplayer.save_pointに登録
-        self.player.save_point = (self.current_stage_index_x, self.current_stage_index_y, px, py)
+        self.player.save_point = (
+            self.current_stage_index_x,
+            self.current_stage_index_y,
+            px,
+            py,
+        )
         # プレイヤーの画面上の位置を復元
         self.player.x = px
         self.player.y = py
@@ -229,7 +248,7 @@ class Game:
         data = {
             "save_point": {
                 "stage": [self.current_stage_index_y, self.current_stage_index_x],
-                "pos":   [self.player.save_point[2], self.player.save_point[3]],
+                "pos": [self.player.save_point[2], self.player.save_point[3]],
             },
             "player_can_be_laser": self.player.can_be_laser,
             "collected_coins": {
@@ -256,7 +275,7 @@ class Game:
         for i, option in enumerate(options):
             color = 7 if i == self.menu_index else 6
             pyxel.text(60, 60 + i * 10, option, color)
-    
+
     def update_death_animation(self):
         # デスアニメーション処理（カウントダウンし、終了時にリスポーン）
         self.death_timer -= 1

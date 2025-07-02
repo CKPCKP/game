@@ -2,6 +2,7 @@ from block import Block
 import pyxel
 from config import GRID_SIZE
 
+
 class SavePoint(Block):
     def __init__(self, index_x, index_y, x, y):
         self.index_x = index_x
@@ -13,7 +14,9 @@ class SavePoint(Block):
         self.height = GRID_SIZE
 
     def draw(self, offset_x=0, offset_y=0):
-        pyxel.rectb(self.x + offset_x, self.y + offset_y, GRID_SIZE, GRID_SIZE, 4)  # 保存ポイントを描画
+        pyxel.rectb(
+            self.x + offset_x, self.y + offset_y, GRID_SIZE, GRID_SIZE, 4
+        )  # 保存ポイントを描画
 
     def check_collision(self, player):
         player_right = player.x + GRID_SIZE

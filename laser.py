@@ -6,6 +6,7 @@ from config import GRID_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT
 import random
 import math
 
+
 # ─── パーティクル定義 ───────────────────────────────────────────────
 class Particle:
     def __init__(self, x, y, vx, vy, lifetime, color):
@@ -25,21 +26,32 @@ class Particle:
         if self.lifetime > 0:
             pyxel.pset(int(self.x), int(self.y), self.color)
 
+
 def direction_to_angle(dir_str1, dir_str2):
     if "UP" in dir_str1 and "DOWN" in dir_str2:
-        return math.pi/2
+        return math.pi / 2
     if "DOWN" in dir_str1 and "UP" in dir_str2:
-        return -math.pi/2
+        return -math.pi / 2
     if "LEFT" in dir_str1 and "RIGHT" in dir_str2:
         return 0
     if "RIGHT" in dir_str1 and "LEFT" in dir_str2:
         return math.pi
     return 0
 
-def spawn_particles(p_list, x, y, base_angle, color,
-                    count=5, spread=math.pi/8,
-                    speed_min=0.5, speed_max=1.5,
-                    life_min=5, life_max=10):
+
+def spawn_particles(
+    p_list,
+    x,
+    y,
+    base_angle,
+    color,
+    count=5,
+    spread=math.pi / 8,
+    speed_min=0.5,
+    speed_max=1.5,
+    life_min=5,
+    life_max=10,
+):
     for _ in range(count):
         a = base_angle + random.uniform(-spread, spread)
         s = random.uniform(speed_min, speed_max)
@@ -49,9 +61,10 @@ def spawn_particles(p_list, x, y, base_angle, color,
         p_list.append(Particle(x, y, vx, vy, life, color))
 
 
-
 class Laser:
-    def __init__(self, x, y, direction, laser_lifetime, laser_length, laser_speed, state="laser"):
+    def __init__(
+        self, x, y, direction, laser_lifetime, laser_length, laser_speed, state="laser"
+    ):
         self.x = int(x)
         self.y = int(y)
         self.direction = direction
@@ -82,7 +95,7 @@ class Laser:
         # レーザーが一定の長さを超えたら古いセグメントを削除
         while len(self.segments) > self.laser_length:
             self.segments.pop(0)
-        
+
         for p in list(self.particles):
             p.update()
             if p.lifetime <= 0:
@@ -127,9 +140,11 @@ class Laser:
                 bb = block.y + block.height
                 if block.collide_with_laser == "ABSORB":
                     # 境界 or 内部にいたら吸収
-                    if ((block.x <= self.x <= br and self.y in (block.y, bb))
-                            or (block.y <= self.y <= bb and self.x in (block.x, br))
-                            or (block.x < self.x < br and block.y < self.y < bb)):
+                    if (
+                        (block.x <= self.x <= br and self.y in (block.y, bb))
+                        or (block.y <= self.y <= bb and self.x in (block.x, br))
+                        or (block.x < self.x < br and block.y < self.y < bb)
+                    ):
                         # DeathBlock にいたらフラグON
                         if isinstance(block, DeathBlock):
                             self.hit_death = True
@@ -167,16 +182,10 @@ class Laser:
                 ):
                     turn_laser(self, "HORIZONTAL", block)
                 elif (
-                    self.x == br
-                    and block.y < self.y < bb
-                    and "LEFT" in self.direction
+                    self.x == br and block.y < self.y < bb and "LEFT" in self.direction
                 ):
                     turn_laser(self, "HORIZONTAL", block)
-                elif (
-                    self.y == bb
-                    and block.x < self.x < br
-                    and "UP" in self.direction
-                ):
+                elif self.y == bb and block.x < self.x < br and "UP" in self.direction:
                     turn_laser(self, "VERTICAL", block)
                 elif (
                     self.y == block.y
@@ -189,7 +198,7 @@ class Laser:
                     collided_blocks_by_corner.append(block)
             if collided_blocks_by_corner:
                 if len(collided_blocks_by_corner) == 3:
-                    turn_laser(self,"BOTH", collided_blocks_by_corner[0])
+                    turn_laser(self, "BOTH", collided_blocks_by_corner[0])
                 elif len(collided_blocks_by_corner) == 1:
                     block = collided_blocks_by_corner[0]
                     if "RIGHT" in self.direction:
@@ -200,8 +209,10 @@ class Laser:
                         next_y = self.y + 1
                     else:
                         next_y = self.y - 1
-                    if (block.x < next_x < block.x + block.width
-                    and block.y < next_y < block.y + block.height):
+                    if (
+                        block.x < next_x < block.x + block.width
+                        and block.y < next_y < block.y + block.height
+                    ):
                         turn_laser(self, "BOTH", block)
                 elif collided_blocks_by_corner[0].x == collided_blocks_by_corner[1].x:
                     turn_laser(self, "HORIZONTAL", collided_blocks_by_corner[0])
@@ -209,7 +220,7 @@ class Laser:
                     turn_laser(self, "VERTICAL", collided_blocks_by_corner[0])
 
         return temp_segments
-    
+
     def check_get_coin(self, coin):
         if coin.collected:
             return False
@@ -228,8 +239,8 @@ class Laser:
         ):
             coin.collected = "not_saved"
             return True
-        return False 
-    
+        return False
+
     def change_stage(self, direction):
         for i in range(len(self.segments)):
             if direction == "LEFT":
@@ -279,6 +290,12 @@ def turn_laser(self, direction, block):
         self.x = self.x - 1 if "LEFT" in self.direction else self.x + 1
         self.y = block.y - 1 if "UP" in self.direction else block.y + block.height + 1
 
-    spawn_particles(self.particles, self.x, self.y,
-                    direction_to_angle(old_dir, self.direction), 9,
-                    count=10, spread=math.pi/4)
+    spawn_particles(
+        self.particles,
+        self.x,
+        self.y,
+        direction_to_angle(old_dir, self.direction),
+        9,
+        count=10,
+        spread=math.pi / 4,
+    )
