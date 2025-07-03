@@ -1,5 +1,5 @@
 import pyxel
-from config import FPS, PLAYER_SPEED, SCREEN_WIDTH, SCREEN_HEIGHT
+from config import FPS, GRID_SIZE, PLAYER_SPEED, SCREEN_WIDTH, SCREEN_HEIGHT
 from player import Player
 
 
@@ -12,7 +12,7 @@ class Opening:
     def __init__(self, duration_seconds: int = 3):
         self.timer = FPS * duration_seconds
         self.active = True
-        self.player = Player(SCREEN_HEIGHT)
+        self.player = Player(GRID_SIZE, SCREEN_HEIGHT - GRID_SIZE * 5)
         self.player.on_ground = True
         self.player.direction = "RIGHT"
 
@@ -27,4 +27,8 @@ class Opening:
     def draw(self):
         # タイルバンク2 の全画面（0,0）〜（SCREEN_WIDTH,SCREEN_HEIGHT）を描画
         pyxel.bltm(0, 0, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+        pyxel.blt(24, 24, 2, 0, 32, 48, 32, 0)
+        pyxel.blt(80, 48, 2, 0, 32, 48, 32, 0)
+        pyxel.blt(133, 35, 2, 0, 32, 48, 32, 0)
+        #pyxel.blt(40, 25, 2, 0, 32, 48, 32, 0)
         self.player.draw()

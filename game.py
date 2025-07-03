@@ -29,7 +29,7 @@ class Game:
         # window の初期化(pyxel.init)は menu.py で行われる
         pyxel.load("resources/pyxel_resource.pyxres")
         # ... 既存の player, stages, timers 初期化 ...
-        self.player = Player(SCREEN_HEIGHT)
+        self.player = Player(GRID_SIZE, SCREEN_HEIGHT - GRID_SIZE * 2)
         self.current_stage_index_x = 0
         self.current_stage_index_y = 10
         self.stages = self.load_stages("stage_map")
@@ -205,7 +205,7 @@ class Game:
         self.current_stage_index_y = 10
         for st in self.stages.values():
             st.reset()
-        self.player = Player(SCREEN_HEIGHT)
+        self.player = Player(GRID_SIZE, SCREEN_HEIGHT - GRID_SIZE * 2)
         # プレイヤー初期位置を save_point に登録
         self.player.save_point = (0, 0, self.player.x, self.player.y)
         # 空データで即セーブ
@@ -296,8 +296,8 @@ class Game:
 
     # オフセット付き描画用メソッド
     def draw_game_with_offset(self, offset_x, offset_y):
-        self.player.draw(offset_x, offset_y)
         current_stage = self.stages[
             (self.current_stage_index_y, self.current_stage_index_x)
         ]
         current_stage.draw(offset_x, offset_y)
+        self.player.draw(offset_x, offset_y)

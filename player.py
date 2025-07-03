@@ -5,9 +5,9 @@ from save_point import SavePoint
 
 
 class Player:
-    def __init__(self, screen_height):
-        self.x = GRID_SIZE
-        self.y = screen_height - GRID_SIZE * 3
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
         self.velocity_x = 0
         self.velocity_y = 0
         self.lasers = []
