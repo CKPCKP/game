@@ -1,5 +1,5 @@
 import pyxel
-import config
+from config import SCREEN_HEIGHT, SCREEN_WIDTH, FPS
 from save_manager import delete_slot, list_slots, load_slot
 
 
@@ -7,11 +7,12 @@ class Menu:
     def __init__(self):
         # 初期ウィンドウ
         pyxel.init(
-            config.SCREEN_WIDTH,
-            config.SCREEN_HEIGHT,
-            fps=config.FPS,
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            fps=FPS,
             title="Laser Shooting Game",
         )
+        pyxel.load("resources/pyxel_resource.pyxres")
         # スロット一覧取得
         self.slots = list_slots()  # [ None or dict, … ]
         self.selected_slot = 0
@@ -46,12 +47,13 @@ class Menu:
 
     def draw(self):
         pyxel.cls(0)
-        pyxel.text(30, 20, "Select Save Slot", 7)
+        pyxel.bltm(0, 0, 1, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+        pyxel.text(140, 190, "Select Save Slot", 7)
         for i, slot in enumerate(self.slots):
-            y = 50 + i * 20
+            y = 220 + i * 20
             color = 11 if i == self.selected_slot else 7
             if slot is None:
-                pyxel.text(40, y, f"Slot {i + 1}: Empty", color)
+                pyxel.text(100, y, f"Slot {i + 1}: Empty", color)
             else:
                 sp = slot["save_point"]
                 coins = sum(
@@ -60,7 +62,7 @@ class Menu:
                 )
                 pots = sum(sum(flags) for flags in slot["collected_potions"].values())
                 pyxel.text(
-                    40,
+                    100,
                     y,
                     f"Slot {i + 1}: Stage{sp['stage']} coins:{coins} pots:{pots}",
                     color,
