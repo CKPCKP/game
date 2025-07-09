@@ -1,5 +1,5 @@
 import pyxel
-from config import GRID_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH
+from config import FPS, GRID_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH
 from death_block import DeathBlock
 from save_point import SavePoint
 
@@ -16,12 +16,17 @@ class Player:
         self.alive = True
         self.save_point = (0, 0, 0, 0)
         self.collected_coins = {}
+        self.can_shoot_laser = False
         self.can_be_laser = False
         self.laser = None
         self.just_saved = False  # セーブポイントに触れたかどうか
         self.frame = 0
+        self.potion_effect_timer = 0
+        self.potion_effect_type = None
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
+        if self.potion_effect_timer > 0:
+            return
         if self.laser:
             # 吸着中は移動ストップ＆位置合わせだけ
             self.velocity_x = 0
@@ -138,7 +143,9 @@ class Player:
         if self.frame >= 30:
             self.frame = 0
         w = GRID_SIZE if self.direction == "RIGHT" else -GRID_SIZE
-        v = 0
+        v = 3
+        if self.can_shoot_laser:
+            v = 0
         if self.can_be_laser:
             v = 1
         if self.can_be_laser == "used":
@@ -176,6 +183,25 @@ class Player:
             if laser != self.laser or self.alive:
                 laser.draw()
 
+        if self.potion_effect_timer > 0:
+            # タイプに応じたメッセージ
+            text = "ok"
+            if self.potion_effect_type == "can_be_laser":
+                text = "can_be_laser"
+            elif self.potion_effect_type == "can_shoot_laser":
+                text = "can_shoot_laser"
+            # プレイヤーの頭上にテキスト表示
+            pyxel.text(
+                self.x + offset_x,
+                self.y - GRID_SIZE // 2 + offset_y,
+                text,
+                7,
+            )
+            # タイマーをデクリメント
+            self.potion_effect_timer -= 1
+            if self.potion_effect_timer == 0:
+                self.potion_effect_type = None
+
     def shoot_laser(self, laser_class):
         if len(self.lasers) >= 2:
             return
@@ -212,25 +238,24 @@ class Player:
             for laser in self.lasers:
                 laser.check_get_coin(coin)
 
-    def check_get_potion(self, can_be_laser_potions):
-        for can_be_laser_potion in can_be_laser_potions:
-            if can_be_laser_potion.collected:
+    def check_get_potion(self, potions):
+        for potion in potions:
+            if potion.collected:
                 return
 
             player_right = self.x + GRID_SIZE
             player_bottom = self.y + GRID_SIZE
-            can_be_laser_potion_right = can_be_laser_potion.x + GRID_SIZE
-            can_be_laser_potion_bottom = can_be_laser_potion.y + GRID_SIZE
+            potion_right = potion.x + GRID_SIZE
+            potion_bottom = potion.y + GRID_SIZE
 
             # 衝突判定
             if (
-                can_be_laser_potion.x < player_right
-                and can_be_laser_potion_right > self.x
-                and can_be_laser_potion.y < player_bottom
-                and can_be_laser_potion_bottom > self.y
+                potion.x < player_right
+                and potion_right > self.x
+                and potion.y < player_bottom
+                and potion_bottom > self.y
             ):
-                self.can_be_laser = "OK"
-                can_be_laser_potion.collected = True
+                potion.on_collect(self)
 
     def revive(self):
         self.alive = True
@@ -275,11 +300,6 @@ class Player:
         self.laser = laser
         self.lasers.append(self.laser)
         self.can_be_laser = "used"
-
-    def adjust_position(self):
-        self.x = (self.x // GRID_SIZE) * GRID_SIZE
-        self.y = (self.y // GRID_SIZE) * GRID_SIZE
-        return
 
     def erase_inactive_laser(self, all=False):
         for laser in list(self.lasers):  # コピーを使って安全に削除

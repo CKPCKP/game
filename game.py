@@ -82,6 +82,10 @@ class Game:
         ]
         current_stage.update()
 
+        if any(p.anim_timer > 0 for p in current_stage.potions):
+        # Player.update などスキップして描画だけ
+            return
+
         # レーザー更新 & DeathBlock 衝突を検知
         for laser in self.player.lasers:
             laser.update(current_stage.collidables)
@@ -92,7 +96,7 @@ class Game:
             PLAYER_SPEED, JUMP_STRENGTH, GRAVITY, MAX_GRAVITY, current_stage.collidables
         )
         self.player.check_get_coin(current_stage.coins)
-        self.player.check_get_potion(current_stage.can_be_laser_potions)
+        self.player.check_get_potion(current_stage.potions)
 
         if (
             self.player.can_be_laser == "OK"
@@ -105,7 +109,7 @@ class Game:
                 )
             )
 
-        if pyxel.btnp(pyxel.KEY_Z):
+        if (self.player.can_shoot_laser and pyxel.btnp(pyxel.KEY_Z)):
             self.player.shoot_laser(
                 lambda x, y, direction: Laser(
                     x, y, direction, LASER_LIFETIME, LASER_LENGTH, LASER_SPEED
@@ -241,7 +245,7 @@ class Game:
         for key, flags in data["collected_potions"].items():
             sy, sx = map(int, key.split("-"))
             stage = self.stages[(sy, sx)]
-            for pot, collected in zip(stage.can_be_laser_potions, flags):
+            for pot, collected in zip(stage.potions, flags):
                 pot.collected = collected
 
     def save_to_disk(self):
@@ -256,7 +260,7 @@ class Game:
                 for (y, x), stage in self.stages.items()
             },
             "collected_potions": {
-                f"{y}-{x}": [pot.collected for pot in stage.can_be_laser_potions]
+                f"{y}-{x}": [pot.collected for pot in stage.potions]
                 for (y, x), stage in self.stages.items()
             },
         }
