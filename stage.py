@@ -2,7 +2,7 @@ from block import Block
 from potion import Potion
 from flag_block import FlagBlock
 from gate import Gate
-from config import GRID_SIZE
+from config import GRID_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH
 from death_block import DeathBlock
 from coin import Coin
 from save_point import SavePoint
@@ -36,6 +36,11 @@ class Stage:
                         )
                     )
                 elif char == "#":
+                    near_blocks = []
+                    if x < SCREEN_WIDTH // GRID_SIZE - 1 and len(ascii_map[y]) > x+1 and ascii_map[y][x+1] == "#":
+                        near_blocks.append("RIGHT")
+                    if y < SCREEN_HEIGHT // GRID_SIZE - 1 and len(ascii_map[y+1]) > x and ascii_map[y+1][x] == "#":
+                        near_blocks.append("DOWN")
                     self.collidables.append(
                         Block(
                             block_x,
@@ -44,6 +49,7 @@ class Stage:
                             self.block_size,
                             collide_with_player=True,
                             collide_with_laser="ABSORB",
+                            near_blocks=near_blocks
                         )
                     )
                 elif char == "M":  # ミラー

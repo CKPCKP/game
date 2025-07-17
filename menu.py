@@ -1,5 +1,5 @@
 import pyxel
-from config import SCREEN_HEIGHT, SCREEN_WIDTH, FPS
+from config import GRID_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH, FPS
 from save_manager import delete_slot, list_slots, load_slot
 
 
@@ -47,28 +47,57 @@ class Menu:
 
     def draw(self):
         pyxel.cls(0)
-        pyxel.bltm(0, 0, 1, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-        pyxel.text(140, 190, "Select Save Slot", 7)
+        pyxel.bltm(0, 0, 1, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0)
+        pyxel.rect(0, 192, SCREEN_WIDTH, 128, 1)
+        pyxel.text(150, 200, "Select Save Slot", 7)
         for i, slot in enumerate(self.slots):
-            y = 220 + i * 20
+            y = 220 + i * 17
             color = 11 if i == self.selected_slot else 7
             if slot is None:
-                pyxel.text(100, y, f"Slot {i + 1}: Empty", color)
+                pyxel.text(135, y, f"Slot {i + 1}: Empty", color)
             else:
                 sp = slot["save_point"]
                 coins = sum(
-                    sum([1 if flags else 0])
+                    sum([1 if flags == "true" else 0])
                     for flags in slot["collected_coins"].values()
                 )
-                pots = sum(sum(flags) for flags in slot["collected_potions"].values())
                 pyxel.text(
-                    100,
+                    135,
                     y,
-                    f"Slot {i + 1}: Stage{sp['stage']} coins:{coins} pots:{pots}",
+                    f"Slot {i + 1}: {str(sp['stage'][1]).zfill(3)}           {coins}",
                     color,
                 )
+                if "player_can_shoot_laser" in slot and slot["player_can_shoot_laser"]: 
+                    pyxel.blt(
+                        185,
+                        y - 1,
+                        1,
+                        0 * GRID_SIZE,
+                        6 * GRID_SIZE,
+                        GRID_SIZE //2,
+                        GRID_SIZE //2 ,
+                        0,
+                    )
+                if slot["player_can_be_laser"]: 
+                    pyxel.blt(
+                        195,
+                        y - 1,
+                        1,
+                        0.5 * GRID_SIZE,
+                        6 * GRID_SIZE,
+                        GRID_SIZE //2,
+                        GRID_SIZE //2,
+                        0,
+                    )
+                pyxel.circ(
+                    215,
+                    y + 2,
+                    3,
+                    10,
+                )
+        
         if self.confirming_delete and self.slots[self.selected_slot] is not None:
-            pyxel.text(30, 120, "Press C again to confirm delete", 8)
+            pyxel.text(125, 270, "Press C again to confirm delete", 8)
 
 
 if __name__ == "__main__":

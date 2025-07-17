@@ -74,3 +74,4 @@ class Potion:
                 ex = cx + offset_x + random.randint(0, GRID_SIZE)
                 ey = cy + offset_y + random.randint(0, GRID_SIZE)
                 pyxel.circ(ex, ey, 1, 7)
+

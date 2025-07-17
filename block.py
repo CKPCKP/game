@@ -3,7 +3,7 @@ from config import GRID_SIZE
 
 
 class Block:
-    def __init__(self, x, y, width, height, collide_with_player, collide_with_laser):
+    def __init__(self, x, y, width, height, collide_with_player, collide_with_laser, near_blocks=None):
         self.x = x
         self.y = y
         self.width = width
@@ -13,6 +13,7 @@ class Block:
         if self.collide_with_laser == "ABSORB":
             self.absorb_side = ("TOP", "BOTTOM", "LEFT", "RIGHT")
         self.set_design()
+        self.near_blocks = near_blocks
 
     def set_design(self):
         if self.collide_with_laser == "ABSORB":
@@ -38,6 +39,12 @@ class Block:
                 pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 32, 16, 16, 16, 0)
             else:
                 pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 0, 32, 16, 16, 0)
+        # if self.near_blocks:
+        #     for direction in self.near_blocks:
+        #         if direction == "RIGHT":
+        #             pyxel.rect(self.x + GRID_SIZE *3//4 + offset_x, self.y + offset_y, GRID_SIZE // 2, GRID_SIZE, 2)
+        #         elif direction == "DOWN":
+        #             pyxel.rect(self.x + offset_x, self.y + GRID_SIZE *3//4 + offset_y, GRID_SIZE, GRID_SIZE // 2, 2)
 
     def check_collision(self, player):
         if not self.collide_with_player:

@@ -38,6 +38,8 @@ class Game:
         self.death_timer = 0
         self.current_slot = slot_index
         self.opening = None
+        self.popup_active = False
+        self.popup_text = ""
 
         # menu.py から渡されたセーブスロット情報で新規 or ロード
         self.current_slot = slot_index
@@ -75,6 +77,11 @@ class Game:
                 self.update_game()
 
     def update_game(self):
+        if self.popup_active:
+            if pyxel.btnp(pyxel.KEY_SPACE):
+                self.popup_active = False
+            return
+
         if pyxel.btnp(pyxel.KEY_R):
             self.player.alive = False
         current_stage = self.stages[
@@ -85,6 +92,16 @@ class Game:
         if any(p.anim_timer > 0 for p in current_stage.potions):
         # Player.update などスキップして描画だけ
             return
+        
+        for p in current_stage.potions:
+            if p.collected and p.anim_timer == 0 and not getattr(p, "popup_shown", False):
+                self.popup_active = True
+                if p.type == "can_be_laser":
+                    self.popup_text = "X : be laser"
+                else:
+                    self.popup_text = "Z : shoot laser"
+                p.popup_shown = True
+                return
 
         # レーザー更新 & DeathBlock 衝突を検知
         for laser in self.player.lasers:
@@ -193,6 +210,11 @@ class Game:
         if self.opening and self.opening.active:
             self.opening.draw()
             return
+        
+        if self.popup_active:
+            self.draw_game()
+            self.draw_popup()
+            return
 
         if self.paused:
             self.draw_pause_menu()
@@ -202,6 +224,19 @@ class Game:
             self.draw_death_animation(shake=0)
         else:
             self.draw_game()
+    
+    def draw_popup(self):
+        """ポップアップウィンドウを中央に描画"""
+        w, h = 200, 40
+        x = (SCREEN_WIDTH - w) // 2
+        y = (SCREEN_HEIGHT - h) // 2
+        # 背景（黒）
+        pyxel.rect(x, y, w, h, 0)
+        # 枠線（白）
+        pyxel.rectb(x, y, w, h, 7)
+        # メッセージ
+        pyxel.text(x + 8, y + 8, self.popup_text, 7)
+        pyxel.text(x + 8, y + 24, "SPACE", 7)
 
     def new_game(self, slot_index):
         # 全ステージをリセットして Player を初期化
@@ -232,6 +267,7 @@ class Game:
         # プレイヤーの画面上の位置を復元
         self.player.x = px
         self.player.y = py
+        self.player.can_shoot_laser = data.get("player_can_shoot_laser")
         self.player.can_be_laser = "OK" if data.get("player_can_be_laser") else False
         # コイン復元
         for key, flags in data["collected_coins"].items():
@@ -241,12 +277,6 @@ class Game:
                 coin.collected = collected
                 if collected:
                     self.player.collected_coins[coin] = "fixed"
-        # ポーション復元
-        for key, flags in data["collected_potions"].items():
-            sy, sx = map(int, key.split("-"))
-            stage = self.stages[(sy, sx)]
-            for pot, collected in zip(stage.potions, flags):
-                pot.collected = collected
 
     def save_to_disk(self):
         data = {
@@ -254,15 +284,12 @@ class Game:
                 "stage": [self.current_stage_index_y, self.current_stage_index_x],
                 "pos": [self.player.save_point[2], self.player.save_point[3]],
             },
+            "player_can_shoot_laser": self.player.can_shoot_laser,
             "player_can_be_laser": self.player.can_be_laser,
             "collected_coins": {
                 f"{y}-{x}": [coin.collected for coin in stage.coins]
                 for (y, x), stage in self.stages.items()
-            },
-            "collected_potions": {
-                f"{y}-{x}": [pot.collected for pot in stage.potions]
-                for (y, x), stage in self.stages.items()
-            },
+            }
         }
         save_slot(self.current_slot, data)
 
