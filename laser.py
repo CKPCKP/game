@@ -173,6 +173,7 @@ class Laser:
                                 )
                             ):
                                 block.absorbed += 1
+                            pyxel.play(3, 61, loop=False, resume=True)
                         return temp_segments
 
                 if (
@@ -255,6 +256,7 @@ class Laser:
 
 
 def turn_laser(self, direction, block):
+    pyxel.play(3, 59, loop=False, resume=True)
     old_dir = self.direction
     if direction == "HORIZONTAL":
         if self.direction == "UP_RIGHT":

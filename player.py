@@ -105,6 +105,7 @@ class Player:
         if self.on_ground and pyxel.btnp(pyxel.KEY_SPACE):
             self.velocity_y = jump_strength
             self.on_ground = False
+            pyxel.play(3, 58, loop=False, resume=True)
         if self.velocity_y < 0:
             self.velocity_y += gravity * 3
         else:
@@ -300,6 +301,7 @@ class Player:
         self.laser = laser
         self.lasers.append(self.laser)
         self.can_be_laser = "used"
+        pyxel.play(3, 62, loop=False, resume=True)
 
     def erase_inactive_laser(self, all=False):
         for laser in list(self.lasers):  # コピーを使って安全に削除

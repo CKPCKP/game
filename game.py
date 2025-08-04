@@ -17,7 +17,6 @@ from config import (
     LASER_LENGTH,
     MAX_GRAVITY,
 )
-from save_point import SavePoint  # 追加
 from save_manager import list_slots, load_slot, save_slot
 
 DEATH_ANIMATION_FRAMES = FPS // 2
@@ -40,6 +39,7 @@ class Game:
         self.opening = None
         self.popup_active = False
         self.popup_text = ""
+        self.font = pyxel.Font("resources/umplus_j10r.bdf")
 
         # menu.py から渡されたセーブスロット情報で新規 or ロード
         self.current_slot = slot_index
@@ -95,11 +95,11 @@ class Game:
         
         for p in current_stage.potions:
             if p.collected and p.anim_timer == 0 and not getattr(p, "popup_shown", False):
-                self.popup_active = True
+                self.popup_active = p.type
                 if p.type == "can_be_laser":
-                    self.popup_text = "X : be laser"
+                    self.popup_text = "X"
                 else:
-                    self.popup_text = "Z : shoot laser"
+                    self.popup_text = "Z"
                 p.popup_shown = True
                 return
 
@@ -184,6 +184,7 @@ class Game:
 
         # 死亡を検知してデスアニメーションを開始
         if not self.player.alive and self.death_timer == 0:
+            pyxel.play(3, 60, loop=False, resume=True)
             self.death_timer = DEATH_ANIMATION_FRAMES
 
         # セーブポイントに触れたときだけ保存
@@ -213,7 +214,7 @@ class Game:
         
         if self.popup_active:
             self.draw_game()
-            self.draw_popup()
+            self.draw_popup(self.popup_active)
             return
 
         if self.paused:
@@ -225,18 +226,58 @@ class Game:
         else:
             self.draw_game()
     
-    def draw_popup(self):
-        """ポップアップウィンドウを中央に描画"""
-        w, h = 200, 40
-        x = (SCREEN_WIDTH - w) // 2
-        y = (SCREEN_HEIGHT - h) // 2
-        # 背景（黒）
-        pyxel.rect(x, y, w, h, 0)
-        # 枠線（白）
-        pyxel.rectb(x, y, w, h, 7)
+    def draw_popup(self, type):
         # メッセージ
-        pyxel.text(x + 8, y + 8, self.popup_text, 7)
-        pyxel.text(x + 8, y + 24, "SPACE", 7)
+        if type == "can_shoot_laser":
+            w, h = 50, 72
+            x = (SCREEN_WIDTH - w) // 2
+            y = (SCREEN_HEIGHT - h) // 2
+            # 背景（黒）
+            pyxel.rect(x, y, w, h, 0)
+            # 枠線（白）
+            pyxel.rectb(x, y, w, h, 7)
+            self.write_text("CENTER", self.popup_text, y + 8)
+            pyxel.blt(
+                x + 25,
+                y + 48,
+                0,
+                0,
+                0,
+                GRID_SIZE,
+                GRID_SIZE
+            )
+
+            pyxel.line(x + 12, y + 35, x + 25, y + 48, 8)
+        elif type == "can_be_laser":
+            w, h = 80, 55
+            x = (SCREEN_WIDTH - w) // 2
+            y = (SCREEN_HEIGHT - h) // 2
+            # 背景（黒）
+            pyxel.rect(x, y, w, h, 0)
+            # 枠線（白）
+            pyxel.rectb(x, y, w, h, 7)
+            self.write_text("CENTER", self.popup_text, y + 8)
+            pyxel.blt(
+                x + 8,
+                y + 32,
+                0,
+                16,
+                0,
+                GRID_SIZE,
+                GRID_SIZE
+            )
+            pyxel.blt(
+                x + 32,
+                y + 32,
+                1,
+                0,
+                112,
+                GRID_SIZE,
+                GRID_SIZE
+            )
+
+            pyxel.line(x + 57, y + 47, x + 72, y + 32, 7)
+
 
     def new_game(self, slot_index):
         # 全ステージをリセットして Player を初期化
@@ -301,11 +342,11 @@ class Game:
         self.player.draw()
 
     def draw_pause_menu(self):
-        pyxel.text(60, 40, "PAUSE MENU", pyxel.frame_count % 16)
+        self.write_text("CENTER", "PAUSE MENU", 120)
         options = ["Continue", "Options", "Quit"]
         for i, option in enumerate(options):
-            color = 7 if i == self.menu_index else 6
-            pyxel.text(60, 60 + i * 10, option, color)
+            color = 7 if i != self.menu_index else 6
+            self.write_text("CENTER", option, 160 + i * 15, color)
 
     def update_death_animation(self):
         # デスアニメーション処理（カウントダウンし、終了時にリスポーン）
@@ -332,3 +373,24 @@ class Game:
         ]
         current_stage.draw(offset_x, offset_y)
         self.player.draw(offset_x, offset_y)
+    
+    def write_text(self, align: str, text: str, y: int = 10, col: int = 7):
+        """指定した整列方法でテキストを描画する
+
+        align: "LEFT", "CENTER", "RIGHT"
+        text: 描画する文字列
+        y: 縦位置（省略時は10）
+        col: 色（省略時は7=白）
+        """
+        text_width = self.font.text_width(text)
+
+        if align == "LEFT":
+            x = 0
+        elif align == "CENTER":
+            x = (SCREEN_WIDTH - text_width) // 2
+        elif align == "RIGHT":
+            x = SCREEN_WIDTH - text_width
+        else:
+            raise ValueError("align は 'LEFT', 'CENTER', 'RIGHT' のいずれかで指定してください")
+
+        pyxel.text(x, y, text, col, self.font)
