@@ -139,9 +139,9 @@ class Player:
 
         self.erase_inactive_laser()
 
-    def draw(self, offset_x=0, offset_y=0):
+    def draw(self, offset_x=0, offset_y=0, look=None):
         self.frame += 1
-        if self.frame >= 30:
+        if self.frame >= 32:
             self.frame = 0
         w = GRID_SIZE if self.direction == "RIGHT" else -GRID_SIZE
         v = 3
@@ -152,12 +152,14 @@ class Player:
         if self.can_be_laser == "used":
             v = 2
         if not self.laser and self.alive:
-            if not self.on_ground:
+            if look == "smile":
+                frame_index = 4
+            elif not self.on_ground:
                 frame_index = 2
             elif self.velocity_x != 0:
                 frame_index = ((self.frame // 4) % 2) * 2
             else:
-                frame_index = self.frame // 15
+                frame_index = self.frame // 16
             pyxel.blt(
                 self.x + offset_x,
                 self.y + offset_y,
@@ -309,7 +311,7 @@ class Player:
             if laser == self.laser:
                 continue
             # 非アクティブ or 画面外に出たレーザーを除去
-            if all or laser.active <= 1:
-                #    or laser.x < 0 or laser.x >= SCREEN_WIDTH \
-                #    or laser.y < 0 or laser.y >= SCREEN_HEIGHT
+            if all or laser.active <= 1 \
+                   or laser.x < 0 or laser.x >= SCREEN_WIDTH \
+                   or laser.y < 0 or laser.y >= SCREEN_HEIGHT:
                 self.lasers.remove(laser)

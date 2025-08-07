@@ -5,20 +5,13 @@ from save_manager import delete_slot, list_slots, load_slot
 
 class Menu:
     def __init__(self):
-        # 初期ウィンドウ
-        pyxel.init(
-            SCREEN_WIDTH,
-            SCREEN_HEIGHT,
-            fps=FPS,
-            title="Laser Shooting Game",
-        )
-        pyxel.load("resources/pyxel_resource.pyxres")
         self.font = pyxel.Font("resources/umplus_j10r.bdf")
         # スロット一覧取得
         self.slots = list_slots()  # [ None or dict, … ]
         self.selected_slot = 0
         self.confirming_delete = False
-        pyxel.run(self.update, self.draw)
+        self.selected_slot = 0
+        self.confirming_delete = False
 
     def update(self):
         # 上下キーでスロット選択
@@ -33,10 +26,7 @@ class Menu:
             self.confirming_delete = False
             slot_index = self.selected_slot
             slot_data = self.slots[slot_index]  # None なら新規
-            import game
-
-            # Game にスロット情報を渡して起動
-            game.Game(slot_index, slot_data)
+            return slot_index, slot_data
 
         if pyxel.btnp(pyxel.KEY_C):
             if self.slots[self.selected_slot] is not None:
@@ -124,6 +114,11 @@ class Menu:
 
         pyxel.text(x, y, text, col, self.font)
 
+    def reload_slots(self):
+        """セーブスロット一覧を再読み込みしてメニュー状態をリセット"""
+        self.slots = list_slots()
+        self.selected_slot = 0
+        self.confirming_delete = False
 
 if __name__ == "__main__":
     Menu()

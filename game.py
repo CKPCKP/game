@@ -1,5 +1,6 @@
 import pyxel
 import os
+from menu import Menu
 from opening import Opening
 from player import Player
 from laser import Laser
@@ -38,7 +39,7 @@ class Game:
         self.current_slot = slot_index
         self.opening = None
         self.popup_active = False
-        self.popup_text = ""
+        self.popup_timer = 0
         self.font = pyxel.Font("resources/umplus_j10r.bdf")
 
         # menu.py から渡されたセーブスロット情報で新規 or ロード
@@ -47,8 +48,6 @@ class Game:
             self.new_game(self.current_slot)
         else:
             self._load_save_data(slot_data)
-
-        pyxel.run(self.update, self.draw)
 
     def load_stages(self, directory):
         stages = {}
@@ -72,14 +71,24 @@ class Game:
             if pyxel.btnp(pyxel.KEY_P):
                 self.paused = not self.paused
             if self.paused:
-                self.update_pause_menu()
+                if self.update_pause_menu():
+                    return True
             else:
                 self.update_game()
 
     def update_game(self):
         if self.popup_active:
-            if pyxel.btnp(pyxel.KEY_SPACE):
+            if self.popup_timer >= 15 and \
+                (
+                    pyxel.btnp(pyxel.KEY_SPACE) or 
+                    pyxel.btnp(pyxel.KEY_Z) or 
+                    pyxel.btnp(pyxel.KEY_X) or 
+                    pyxel.btnp(pyxel.KEY_RETURN)
+                ):
                 self.popup_active = False
+                self.popup_timer = 0
+            else:
+                self.popup_timer = min(self.popup_timer+1, 15)
             return
 
         if pyxel.btnp(pyxel.KEY_R):
@@ -96,6 +105,7 @@ class Game:
         for p in current_stage.potions:
             if p.collected and p.anim_timer == 0 and not getattr(p, "popup_shown", False):
                 self.popup_active = p.type
+                self.popup_timer = 0
                 if p.type == "can_be_laser":
                     self.popup_text = "X"
                 else:
@@ -194,16 +204,18 @@ class Game:
 
     def update_pause_menu(self):
         if pyxel.btnp(pyxel.KEY_UP):
-            self.menu_index = (self.menu_index - 1) % 3
+            self.menu_index = (self.menu_index - 1) % 4
         if pyxel.btnp(pyxel.KEY_DOWN):
-            self.menu_index = (self.menu_index + 1) % 3
+            self.menu_index = (self.menu_index + 1) % 4
         if pyxel.btnp(pyxel.KEY_RETURN):
             if self.menu_index == 0:  # Continue
                 self.paused = False
             elif self.menu_index == 1:  # Options
                 # オプション画面の処理を追加
                 pass
-            elif self.menu_index == 2:  # Quit
+            elif self.menu_index == 2:  # Title
+                return True
+            elif self.menu_index == 3:  # Quit
                 pyxel.quit()
 
     def draw(self):
@@ -213,7 +225,7 @@ class Game:
             return
         
         if self.popup_active:
-            self.draw_game()
+            self.draw_game(player="smile")
             self.draw_popup(self.popup_active)
             return
 
@@ -334,16 +346,19 @@ class Game:
         }
         save_slot(self.current_slot, data)
 
-    def draw_game(self):
+    def draw_game(self, player=None):
         current_stage = self.stages[
             (self.current_stage_index_y, self.current_stage_index_x)
         ]
         current_stage.draw()
-        self.player.draw()
+        if player == "smile":
+            self.player.draw(look="smile")
+        else:
+            self.player.draw()
 
     def draw_pause_menu(self):
         self.write_text("CENTER", "PAUSE MENU", 120)
-        options = ["Continue", "Options", "Quit"]
+        options = ["Continue", "Options", "Back to Title", "Quit"]
         for i, option in enumerate(options):
             color = 7 if i != self.menu_index else 6
             self.write_text("CENTER", option, 160 + i * 15, color)
