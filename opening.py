@@ -9,10 +9,11 @@ class Opening:
     duration_seconds 秒間、または Z/X キー押下でスキップ可能。
     """
 
-    def __init__(self, duration_seconds: int = 15):
+    def __init__(self, input_mgr, duration_seconds: int = 15):
+        self.input = input_mgr
         self.timer = FPS * duration_seconds
         self.active = True
-        self.player = Player(GRID_SIZE, SCREEN_HEIGHT - GRID_SIZE * 5)
+        self.player = Player(self.input, GRID_SIZE, SCREEN_HEIGHT - GRID_SIZE * 5)
         self.player.on_ground = True
         self.player.direction = "RIGHT"
         self.phase = 0
@@ -24,7 +25,7 @@ class Opening:
     def update(self):
         self.timer -= 1
         # タイマー切れ or Z/X でスキップ
-        if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.KEY_X) or self.timer <= 0:
+        if self.input.btnp("shoot") or self.input.btnp("transform") or self.timer <= 0:
             self.active = False
         # フェーズごとの動作
         if self.phase == 0:

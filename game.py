@@ -25,11 +25,12 @@ DEATH_SHAKE_AMPLITUDE = 2
 
 
 class Game:
-    def __init__(self, slot_index=None, slot_data=None):
+    def __init__(self, input_mgr, slot_index=None, slot_data=None):
         # window の初期化(pyxel.init)は menu.py で行われる
         pyxel.load("resources/pyxel_resource.pyxres")
         # ... 既存の player, stages, timers 初期化 ...
-        self.player = Player(GRID_SIZE, SCREEN_HEIGHT - GRID_SIZE * 2)
+        self.input = input_mgr
+        self.player = Player(self.input, GRID_SIZE, SCREEN_HEIGHT - GRID_SIZE * 2)
         self.current_stage_index_x = 0
         self.current_stage_index_y = 10
         self.stages = self.load_stages("stage_map")
@@ -68,7 +69,7 @@ class Game:
         if self.death_timer > 0:
             self.update_death_animation()
         else:
-            if pyxel.btnp(pyxel.KEY_P):
+            if self.input.btnp("pause"):
                 self.paused = not self.paused
             if self.paused:
                 if self.update_pause_menu():
@@ -80,10 +81,10 @@ class Game:
         if self.popup_active:
             if self.popup_timer >= 15 and \
                 (
-                    pyxel.btnp(pyxel.KEY_SPACE) or 
-                    pyxel.btnp(pyxel.KEY_Z) or 
-                    pyxel.btnp(pyxel.KEY_X) or 
-                    pyxel.btnp(pyxel.KEY_RETURN)
+                    self.input.btnp("jump") or 
+                    self.input.btnp("shoot") or 
+                    self.input.btnp("transform") or 
+                    self.input.btnp("confirm")
                 ):
                 self.popup_active = False
                 self.popup_timer = 0
@@ -91,7 +92,7 @@ class Game:
                 self.popup_timer = min(self.popup_timer+1, 15)
             return
 
-        if pyxel.btnp(pyxel.KEY_R):
+        if self.input.btnp("restart"):
             self.player.alive = False
         current_stage = self.stages[
             (self.current_stage_index_y, self.current_stage_index_x)
@@ -104,6 +105,7 @@ class Game:
         
         for p in current_stage.potions:
             if p.collected and p.anim_timer == 0 and not getattr(p, "popup_shown", False):
+                pyxel.play(3, 57, resume=True)
                 self.popup_active = p.type
                 self.popup_timer = 0
                 if p.type == "can_be_laser":
@@ -128,7 +130,7 @@ class Game:
         if (
             self.player.can_be_laser == "OK"
             and not self.player.laser
-            and pyxel.btnp(pyxel.KEY_X)
+            and self.input.btnp("transform")
         ):
             self.player.be_laser(
                 lambda x, y, direction, state: Laser(
@@ -136,7 +138,7 @@ class Game:
                 )
             )
 
-        if (self.player.can_shoot_laser and pyxel.btnp(pyxel.KEY_Z)):
+        if (self.player.can_shoot_laser and self.input.btnp("shoot")):
             self.player.shoot_laser(
                 lambda x, y, direction: Laser(
                     x, y, direction, LASER_LIFETIME, LASER_LENGTH, LASER_SPEED
@@ -203,11 +205,11 @@ class Game:
             self.player.just_saved = False
 
     def update_pause_menu(self):
-        if pyxel.btnp(pyxel.KEY_UP):
+        if self.input.btnp("up"):
             self.menu_index = (self.menu_index - 1) % 4
-        if pyxel.btnp(pyxel.KEY_DOWN):
+        if self.input.btnp("down"):
             self.menu_index = (self.menu_index + 1) % 4
-        if pyxel.btnp(pyxel.KEY_RETURN):
+        if self.input.btnp("confirm"):
             if self.menu_index == 0:  # Continue
                 self.paused = False
             elif self.menu_index == 1:  # Options
@@ -297,12 +299,12 @@ class Game:
         self.current_stage_index_y = 10
         for st in self.stages.values():
             st.reset()
-        self.player = Player(GRID_SIZE, SCREEN_HEIGHT - GRID_SIZE * 2)
+        self.player = Player(self.input, GRID_SIZE, SCREEN_HEIGHT - GRID_SIZE * 2)
         # プレイヤー初期位置を save_point に登録
         self.player.save_point = (0, 0, self.player.x, self.player.y)
         # 空データで即セーブ
         self.save_to_disk()
-        self.opening = Opening()
+        self.opening = Opening(self.input)
 
     def _load_save_data(self, data):
         sp = data["save_point"]

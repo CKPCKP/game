@@ -14,5 +14,5 @@
 ####gggggggggggggggggg##
 ####                 X 
                      X 
- S               D   X 
+ S                D  X 
 ########################

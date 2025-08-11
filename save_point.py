@@ -12,6 +12,8 @@ class SavePoint(Block):
         self.collide_with_laser = "TRANSPARENT"
         self.width = GRID_SIZE
         self.height = GRID_SIZE
+        self.frame = 0
+        self.frame_index = 0
 
     def draw(self, offset_x=0, offset_y=0):
         pyxel.rectb(

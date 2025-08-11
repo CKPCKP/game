@@ -6,7 +6,7 @@
   M   M#>             M#
 # M   M#>             M#
 #      MMMMMMMMMMMMMMMM#
-# S    #################
+# S    #####DDD#########
 #####      X Y X     ###
 ###>Y      X Y X     ###
 ###>Y      X Y X     ###

@@ -4,7 +4,8 @@ from save_manager import delete_slot, list_slots, load_slot
 
 
 class Menu:
-    def __init__(self):
+    def __init__(self, input_mgr):
+        self.input = input_mgr
         self.font = pyxel.Font("resources/umplus_j10r.bdf")
         # スロット一覧取得
         self.slots = list_slots()  # [ None or dict, … ]
@@ -15,20 +16,20 @@ class Menu:
 
     def update(self):
         # 上下キーでスロット選択
-        if pyxel.btnp(pyxel.KEY_UP):
+        if self.input.btnp("up"):
             self.confirming_delete = False
             self.selected_slot = (self.selected_slot - 1) % len(self.slots)
-        if pyxel.btnp(pyxel.KEY_DOWN):
+        if self.input.btnp("down"):
             self.confirming_delete = False
             self.selected_slot = (self.selected_slot + 1) % len(self.slots)
         # Enter でゲーム開始
-        if pyxel.btnp(pyxel.KEY_RETURN):
+        if self.input.btnp("confirm"):
             self.confirming_delete = False
             slot_index = self.selected_slot
             slot_data = self.slots[slot_index]  # None なら新規
             return slot_index, slot_data
 
-        if pyxel.btnp(pyxel.KEY_C):
+        if self.input.btnp("delete"):
             if self.slots[self.selected_slot] is not None:
                 if not self.confirming_delete:
                     # 初回押下で確認モードへ

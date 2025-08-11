@@ -14,6 +14,8 @@ class Block:
             self.absorb_side = ("TOP", "BOTTOM", "LEFT", "RIGHT")
         self.set_design()
         self.near_blocks = near_blocks
+        self.frame = 0
+        self.frame_index = 0
 
     def set_design(self):
         if self.collide_with_laser == "ABSORB":
@@ -24,21 +26,24 @@ class Block:
             self.color = 12
 
     def update(self):
-        pass
+        self.frame += 1
+        if self.frame >= 32:
+            self.frame = 0
+        self.frame_index = self.frame // 16 * 4
 
     def draw(self, offset_x=0, offset_y=0):
         if self.collide_with_player:
             if self.collide_with_laser == "ABSORB":
-                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 0, 0, 16, 16, 0)
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, self.frame_index * GRID_SIZE, 0, 16, 16, 0)
             elif self.collide_with_laser == "REFLECT":
-                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 16, 0, 16, 16, 0)
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 16 + self.frame_index * GRID_SIZE, 0, 16, 16, 0)
             elif self.collide_with_laser == "TRANSPARENT":
-                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 32, 0, 16, 16, 0)
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 32 + self.frame_index * GRID_SIZE, 0, 16, 16, 0)
         else:
             if self.collide_with_laser == "REFLECT":
-                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 32, 16, 16, 16, 0)
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 32 + self.frame_index * GRID_SIZE, 16, 16, 16, 0)
             else:
-                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 0, 32, 16, 16, 0)
+                pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 0 + self.frame_index * GRID_SIZE , 32, 16, 16, 0)
         # if self.near_blocks:
         #     for direction in self.near_blocks:
         #         if direction == "RIGHT":

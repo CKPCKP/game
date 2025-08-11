@@ -21,10 +21,10 @@ class FlagBlock(Block):
     def draw(self, offset_x=0, offset_y=0):
         # 吸収面に応じたアクセント色を設定
         if self.absorb_side == "TOP":
-            pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 0, 16, -16, -16, 0)
+            pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 0 + self.frame_index * GRID_SIZE, 16, -16, -16, 0)
         elif self.absorb_side == "BOTTOM":
-            pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 0, 16, 16, 16, 0)
+            pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 0 + self.frame_index * GRID_SIZE, 16, 16, 16, 0)
         elif self.absorb_side == "LEFT":
-            pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 16, 16, -16, -16, 0)
+            pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 16 + self.frame_index * GRID_SIZE, 16, -16, -16, 0)
         elif self.absorb_side == "RIGHT":
-            pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 16, 16, 16, 16, 0)
+            pyxel.blt(self.x + offset_x, self.y + offset_y, 1, 16 + self.frame_index * GRID_SIZE, 16, 16, 16, 0)

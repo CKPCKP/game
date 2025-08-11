@@ -2,10 +2,12 @@ import pyxel
 from config import SCREEN_WIDTH, SCREEN_HEIGHT, FPS
 from game import Game
 from menu import Menu
+from input_manager import InputManager
 
 class App:
     def __init__(self):
-        self.menu = Menu()    # init/run は呼ばない
+        self.input_mgr = InputManager()
+        self.menu = Menu(self.input_mgr)    # init/run は呼ばない
         self.game = None
         self.state = "menu"
 
@@ -15,7 +17,7 @@ class App:
             if result is not None:
                 slot_index, slot_data = result
                 self.state = "game"
-                self.game = Game(slot_index, slot_data)
+                self.game = Game(self.input_mgr, slot_index, slot_data)
         elif self.state == "game":
             finished = self.game.update()
             if finished:

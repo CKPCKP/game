@@ -40,12 +40,12 @@ class Gate(Block):
         v = 3 if self.initial_exist else 4
         if self.does_exist:
             pyxel.blt(
-                self.x + offset_x, self.y + offset_y, 1, 0, v * GRID_SIZE, 16, 16, 0
+                self.x + offset_x, self.y + offset_y, 1, 0 + self.frame_index * GRID_SIZE, v * GRID_SIZE, 16, 16, 0
             )
             # pyxel.rect(self.x + offset_x, self.y + offset_y, self.width, self.height, 14)
         else:
             pyxel.blt(
-                self.x + offset_x, self.y + offset_y, 1, 16, v * GRID_SIZE, 16, 16, 0
+                self.x + offset_x, self.y + offset_y, 1, 16 + self.frame_index * GRID_SIZE, v * GRID_SIZE, 16, 16, 0
             )
 
     def check_collision(self, player):

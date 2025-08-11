@@ -5,7 +5,8 @@ from save_point import SavePoint
 
 
 class Player:
-    def __init__(self, x, y):
+    def __init__(self, input_mgr, x, y):
+        self.input = input_mgr
         self.x = x
         self.y = y
         self.velocity_x = 0
@@ -73,10 +74,10 @@ class Player:
             return
             # 水平移動
         self.velocity_x = 0
-        if pyxel.btn(pyxel.KEY_LEFT):
+        if self.input.btn("left"):
             self.velocity_x = -player_speed
             self.direction = "LEFT"
-        elif pyxel.btn(pyxel.KEY_RIGHT):
+        elif self.input.btn("right"):
             self.velocity_x = player_speed
             self.direction = "RIGHT"
         self.x += self.velocity_x
@@ -102,7 +103,7 @@ class Player:
                 self.velocity_x = 0
 
         # ジャンプ＆重力
-        if self.on_ground and pyxel.btnp(pyxel.KEY_SPACE):
+        if self.on_ground and self.input.btnp("jump"):
             self.velocity_y = jump_strength
             self.on_ground = False
             pyxel.play(3, 58, loop=False, resume=True)
