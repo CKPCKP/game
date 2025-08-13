@@ -239,6 +239,7 @@ class Laser:
             and coin_bottom > self.y
         ):
             coin.collected = "not_saved"
+            pyxel.play(3, 55, resume=True)
             return True
         return False
 

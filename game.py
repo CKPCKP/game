@@ -49,6 +49,7 @@ class Game:
             self.new_game(self.current_slot)
         else:
             self._load_save_data(slot_data)
+        pyxel.playm(2, loop = True)
 
     def load_stages(self, directory):
         stages = {}

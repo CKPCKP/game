@@ -24,6 +24,7 @@ class Player:
         self.frame = 0
         self.potion_effect_timer = 0
         self.potion_effect_type = None
+        self.previous_frame_on_ground = True
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
         if self.potion_effect_timer > 0:
@@ -133,10 +134,15 @@ class Player:
                     self.y = collidable.y - GRID_SIZE
                     self.velocity_y = 0
                     self.on_ground = True
+                    if not self.previous_frame_on_ground:
+                        pyxel.play(3, 56, resume=True)
+                    self.previous_frame_on_ground = True
+                    
                 elif self.velocity_y < 0:
                     # 天井衝突
                     self.y = collidable.y + collidable.height
                     self.velocity_y = 0
+        self.previous_frame_on_ground = self.on_ground
 
         self.erase_inactive_laser()
 
@@ -239,6 +245,7 @@ class Player:
             ):
                 self.collected_coins[coin] = "kari"
                 coin.collected = "kari"
+                pyxel.play(3, 55, resume=True)
             for laser in self.lasers:
                 laser.check_get_coin(coin)
 
