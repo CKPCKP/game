@@ -18,7 +18,7 @@ class Potion:
         # アニメーション開始
         self.target_player = player
         self.anim_timer = FPS  # 1秒間
-        self.collected = True
+        self.collected = "kari"
     
     def update(self):
         if self.anim_timer > 0:

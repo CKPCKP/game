@@ -17,6 +17,7 @@ class Player:
         self.alive = True
         self.save_point = (0, 0, 0, 0)
         self.collected_coins = {}
+        self.collected_potions = {}
         self.can_shoot_laser = False
         self.can_be_laser = False
         self.laser = None
@@ -267,6 +268,7 @@ class Player:
                 and potion_bottom > self.y
             ):
                 potion.on_collect(self)
+                self.collected_potions[potion] = "kari"
 
     def revive(self):
         self.alive = True

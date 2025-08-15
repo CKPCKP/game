@@ -1,3 +1,4 @@
+import re
 import pyxel
 import os
 from menu import Menu
@@ -25,6 +26,10 @@ DEATH_SHAKE_AMPLITUDE = 2
 
 
 class Game:
+    ICON_MAP = {
+        "<keyboard>": (2, 0, 128, 16, 16),
+        "<gamepad>": (2, 16, 128, 16, 16),
+    }
     def __init__(self, input_mgr, slot_index=None, slot_data=None):
         # window の初期化(pyxel.init)は menu.py で行われる
         pyxel.load("resources/pyxel_resource.pyxres")
@@ -42,6 +47,13 @@ class Game:
         self.popup_active = False
         self.popup_timer = 0
         self.font = pyxel.Font("resources/umplus_j10r.bdf")
+        if slot_data is None:
+            self.start_popup_timer = FPS // 2
+            self.start_popup_shown = False
+        else:
+            # ロード時はスキップ
+            self.start_popup_timer = None
+            self.start_popup_shown = True
 
         # menu.py から渡されたセーブスロット情報で新規 or ロード
         self.current_slot = slot_index
@@ -67,6 +79,15 @@ class Game:
         if self.opening and self.opening.active:
             self.opening.update()
             return
+        # 新規ゲーム開始時のみ 0.5秒後にジャンプチュートリアルを表示
+        if self.start_popup_timer is not None and not self.start_popup_shown:
+            self.start_popup_timer -= 1
+            if self.start_popup_timer <= 0:
+                self.popup_active = "jump"
+                self.popup_text = "<keyboard> [SPACE] / <gamepad> (A)"
+                self.popup_timer = 0
+                self.start_popup_shown = True
+                return
         if self.death_timer > 0:
             self.update_death_animation()
         else:
@@ -110,9 +131,9 @@ class Game:
                 self.popup_active = p.type
                 self.popup_timer = 0
                 if p.type == "can_be_laser":
-                    self.popup_text = "X"
+                    self.popup_text = "<keyboard> [X] / <gamepad> (Y)"
                 else:
-                    self.popup_text = "Z"
+                    self.popup_text = "<keyboard> [Z] / <gamepad> (X)"
                 p.popup_shown = True
                 return
 
@@ -228,7 +249,6 @@ class Game:
             return
         
         if self.popup_active:
-            self.draw_game(player="smile")
             self.draw_popup(self.popup_active)
             return
 
@@ -243,8 +263,9 @@ class Game:
     
     def draw_popup(self, type):
         # メッセージ
-        if type == "can_shoot_laser":
-            w, h = 50, 72
+        if type == "jump":
+            self.draw_game()
+            w, h = 110, 72
             x = (SCREEN_WIDTH - w) // 2
             y = (SCREEN_HEIGHT - h) // 2
             # 背景（黒）
@@ -253,7 +274,28 @@ class Game:
             pyxel.rectb(x, y, w, h, 7)
             self.write_text("CENTER", self.popup_text, y + 8)
             pyxel.blt(
-                x + 25,
+                x + 48,
+                y + 24,
+                0,
+                48,
+                32,
+                GRID_SIZE,
+                GRID_SIZE
+            )
+            pyxel.line(x + 53, y + 62, x + 53, y + 47, 7)
+            pyxel.line(x + 59, y + 62, x + 59, y + 47, 7)
+        if type == "can_shoot_laser":
+            self.draw_game(player="smile")
+            w, h = 96, 72
+            x = (SCREEN_WIDTH - w) // 2
+            y = (SCREEN_HEIGHT - h) // 2
+            # 背景（黒）
+            pyxel.rect(x, y, w, h, 0)
+            # 枠線（白）
+            pyxel.rectb(x, y, w, h, 7)
+            self.write_text("CENTER", self.popup_text, y + 8)
+            pyxel.blt(
+                x + 48,
                 y + 48,
                 0,
                 0,
@@ -262,9 +304,10 @@ class Game:
                 GRID_SIZE
             )
 
-            pyxel.line(x + 12, y + 35, x + 25, y + 48, 8)
+            pyxel.line(x + 35, y + 35, x + 48, y + 48, 8)
         elif type == "can_be_laser":
-            w, h = 80, 55
+            self.draw_game(player="smile")
+            w, h = 96, 55
             x = (SCREEN_WIDTH - w) // 2
             y = (SCREEN_HEIGHT - h) // 2
             # 背景（黒）
@@ -273,7 +316,7 @@ class Game:
             pyxel.rectb(x, y, w, h, 7)
             self.write_text("CENTER", self.popup_text, y + 8)
             pyxel.blt(
-                x + 8,
+                x + 16,
                 y + 32,
                 0,
                 16,
@@ -282,7 +325,7 @@ class Game:
                 GRID_SIZE
             )
             pyxel.blt(
-                x + 32,
+                x + 40,
                 y + 32,
                 1,
                 0,
@@ -291,7 +334,7 @@ class Game:
                 GRID_SIZE
             )
 
-            pyxel.line(x + 57, y + 47, x + 72, y + 32, 7)
+            pyxel.line(x + 65, y + 47, x + 80, y + 32, 7)
 
 
     def new_game(self, slot_index):
@@ -333,6 +376,15 @@ class Game:
                 coin.collected = collected
                 if collected:
                     self.player.collected_coins[coin] = "fixed"
+            # ポーション復元
+        for key, flags in data.get("collected_potions", {}).items():
+            sy, sx = map(int, key.split("-"))
+            stage = self.stages[(sy, sx)]
+            for potion, collected in zip(stage.potions, flags):
+                potion.collected = collected
+                if collected:
+                    # すでに取得済みとしてポップアップを抑制
+                    potion.popup_shown = True
 
     def save_to_disk(self):
         data = {
@@ -345,7 +397,11 @@ class Game:
             "collected_coins": {
                 f"{y}-{x}": [coin.collected for coin in stage.coins]
                 for (y, x), stage in self.stages.items()
-            }
+            },
+            "collected_potions": {
+                f"{y}-{x}": [bool(p.collected) for p in stage.potions]
+                for (y, x), stage in self.stages.items()
+            },
         }
         save_slot(self.current_slot, data)
 
@@ -392,7 +448,7 @@ class Game:
         current_stage.draw(offset_x, offset_y)
         self.player.draw(offset_x, offset_y)
     
-    def write_text(self, align: str, text: str, y: int = 10, col: int = 7):
+    def write_text(self, align: str, text: str, y: int = 10, col: int = 7, bg: int = 2):
         """指定した整列方法でテキストを描画する
 
         align: "LEFT", "CENTER", "RIGHT"
@@ -400,7 +456,34 @@ class Game:
         y: 縦位置（省略時は10）
         col: 色（省略時は7=白）
         """
-        text_width = self.font.text_width(text)
+
+        # タグ (<keyboard>, <gamepad> ...) を考慮した幅を計算
+        # マークアップ (<keyboard>, <gamepad>, […], (…) ) を考慮した分割と幅計算
+        FONT_HEIGHT = 10  # BDF フォントの高さ(px)。必要に応じて調整してください
+        # ICON_MAP のキー、\[...\]、\(...\) をまとめてキャプチャ
+        pattern = r'(' + '|'.join(map(re.escape, self.ICON_MAP.keys())) + r'|\[.*?\]|\(.*?\))'
+        tokens = re.split(pattern, text)
+
+        widths = []
+        for token in tokens:
+            if token in self.ICON_MAP:
+                # アイコン幅
+                widths.append(self.ICON_MAP[token][3])
+            elif token.startswith('[') and token.endswith(']'):
+                # 四角ボックス：文字幅
+                inner = token[1:-1]
+                widths.append(self.font.text_width(inner))
+            elif token.startswith('(') and token.endswith(')'):
+                # 円枠：文字幅と高さの大きい方で直径を決定
+                inner = token[1:-1]
+                tw = self.font.text_width(inner)
+                r = max(tw, FONT_HEIGHT) // 2
+                widths.append(r * 2)
+            else:
+                # 通常テキスト
+                widths.append(self.font.text_width(token))
+
+        text_width = sum(widths)
 
         if align == "LEFT":
             x = 0
@@ -411,4 +494,30 @@ class Game:
         else:
             raise ValueError("align は 'LEFT', 'CENTER', 'RIGHT' のいずれかで指定してください")
 
-        pyxel.text(x, y, text, col, self.font)
+        # テキスト＆アイコンを順に描画
+        # トークン順に描画
+        for token, w in zip(tokens, widths):
+            if token in self.ICON_MAP:
+                img, u, v, pw, ph = self.ICON_MAP[token]
+                pyxel.blt(x, y, img, u, v, pw, ph)
+            elif token.startswith('[') and token.endswith(']'):
+                # 四角枠
+                inner = token[1:-1]
+                pyxel.rect(x-1, y, w + 2, FONT_HEIGHT + 2, bg)
+                pyxel.text(x, y, inner, col, self.font)
+            elif token.startswith('(') and token.endswith(')'):
+                # 円枠
+                inner = token[1:-1]
+                tw = self.font.text_width(inner)
+                r = max(tw, FONT_HEIGHT) // 2
+                cx = x + r
+                cy = y + FONT_HEIGHT // 2
+                pyxel.circ(cx - 1, cy, r, bg)
+                # 中心揃えでテキスト
+                tx = x + (r * 2 - tw) // 2
+                pyxel.text(tx, y, inner, col, self.font)
+            else:
+                # 通常テキスト
+                pyxel.text(x, y, token, col, self.font)
+
+            x += w
