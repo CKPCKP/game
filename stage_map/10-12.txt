@@ -11,8 +11,8 @@
  S #                  ##
 ####                  ##
 ####DDDDDDDD   DDDDDDD##
-####gggggggggggggggggg##
-####                 X 
-                     X 
- S                D  X 
+##vvgggggggggggggggggg##
+        Y            X 
+        Y            X 
+ S      Y         D  X 
 ########################

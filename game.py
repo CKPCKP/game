@@ -49,6 +49,7 @@ class Game:
         self.popup_timer = 0
         self.font = pyxel.Font("resources/umplus_j10r.bdf")
         self.gate_toggle = False
+        self.end_flag = False
         if slot_data is None:
             self.start_popup_timer = FPS // 2
             self.start_popup_shown = False
@@ -236,6 +237,11 @@ class Game:
         if self.current_slot is not None and getattr(self.player, "just_saved", False):
             self.save_to_disk()
             self.player.just_saved = False
+            if (self.current_stage_index_y, self.current_stage_index_x) == (9, 31) and self.end_flag == False:
+                self.popup_active = "demo_end"
+                self.popup_text = "Demo is over.<br>Thank you for playing!!"
+                self.popup_timer = 0
+                self.end_flag = True
 
     def update_pause_menu(self):
         if self.input.btnp("up"):
@@ -348,6 +354,18 @@ class Game:
             )
 
             pyxel.line(x + 65, y + 47, x + 80, y + 32, 7)
+        elif type == "demo_end":
+            self.draw_game(player="smile")
+            w, h = 200, 40
+            x = (SCREEN_WIDTH - w) // 2
+            y = (SCREEN_HEIGHT - h) // 2
+            # 背景（黒）
+            pyxel.rect(x, y, w, h, 0)
+            # 枠線（白）
+            pyxel.rectb(x, y, w, h, 7)
+            # 中央揃えで英語テキストを表示
+            self.write_text("CENTER", self.popup_text, y + 8)
+
 
 
     def new_game(self, slot_index):
@@ -472,6 +490,12 @@ class Game:
         # マークアップ (<keyboard>, <gamepad>, […], (…) ) を考慮した分割と幅計算
         FONT_HEIGHT = 10  # BDF フォントの高さ(px)。必要に応じて調整してください
         # ICON_MAP のキー、\[...\]、\(...\) をまとめてキャプチャ
+        if "<br>" in text:
+            lines = text.split("<br>")
+            for i, line in enumerate(lines):
+                # y オフセットを行数分だけずらして再帰呼び出し
+                self.write_text(align, line, y + i * FONT_HEIGHT, col, bg)
+            return
         pattern = r'(' + '|'.join(map(re.escape, self.ICON_MAP.keys())) + r'|\[.*?\]|\(.*?\))'
         tokens = re.split(pattern, text)
 
