@@ -1,18 +1,18 @@
 ########################
 #MMMMMMMMMMMMMMMMMMMMMM#
-#M                    M#
-#M                    M#
+#M   g                M#
+#M   g                M#
      MMMMMMMMMMMMMMM  M#          
  S   M       M     M  M#
-###  Y       M     M  M#
-###  Y       M  M  M  M#
+###  X       M     M  M#
+###  X       M  M  M  M#
 ######       M  M  M  M#
-###>X        M  M  M  M#
-###>X        M  M  M  M#
-###>X ##     M  M     M#
-###>X        M  M     M#
-###>X        M^^MMMMMMM#
-###>X ####   ###########
-###>X           X Y 
+###>Y        M  M  M  M#
+###>Y        M  M  M  M#
+###>Y ##     M  M     M#
+###>Y        M  M     M#
+###>Y        M^^MMMMMMM#
+###>Y ####   ###########
+###>Y           Y X 
 ########################
 ########################

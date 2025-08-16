@@ -1,11 +1,12 @@
 import re
 import pyxel
 import os
-from menu import Menu
+from flag_block import FlagBlock
 from opening import Opening
 from player import Player
 from laser import Laser
 from stage import Stage
+from save_manager import load_slot
 from config import (
     FPS,
     GRID_SIZE,
@@ -47,6 +48,7 @@ class Game:
         self.popup_active = False
         self.popup_timer = 0
         self.font = pyxel.Font("resources/umplus_j10r.bdf")
+        self.gate_toggle = False
         if slot_data is None:
             self.start_popup_timer = FPS // 2
             self.start_popup_shown = False
@@ -109,6 +111,7 @@ class Game:
                     self.input.btnp("confirm")
                 ):
                 self.popup_active = False
+                self.player.animating = True
                 self.popup_timer = 0
             else:
                 self.popup_timer = min(self.popup_timer+1, 15)
@@ -119,7 +122,11 @@ class Game:
         current_stage = self.stages[
             (self.current_stage_index_y, self.current_stage_index_x)
         ]
-        current_stage.update()
+
+        if sum(b.absorbed for b in current_stage.collidables if isinstance(b, FlagBlock)): 
+            self.gate_toggle ^= True
+        
+        current_stage.update(self.gate_toggle)
 
         if any(p.anim_timer > 0 for p in current_stage.potions):
         # Player.update などスキップして描画だけ
@@ -215,6 +222,10 @@ class Game:
 
         if stage_changed:
             self.player.erase_inactive_laser(all=True)
+            current_stage = self.stages[
+                (self.current_stage_index_y, self.current_stage_index_x)
+            ]
+            current_stage.update(self.gate_toggle)
 
         # 死亡を検知してデスアニメーションを開始
         if not self.player.alive and self.death_timer == 0:
@@ -249,6 +260,8 @@ class Game:
             return
         
         if self.popup_active:
+            # ポップアップ中はプレイヤーアニメーションを停止
+            self.player.animating = False
             self.draw_popup(self.popup_active)
             return
 
@@ -385,6 +398,7 @@ class Game:
                 if collected:
                     # すでに取得済みとしてポップアップを抑制
                     potion.popup_shown = True
+        self.gate_toggle = data.get("gate_toggle")
 
     def save_to_disk(self):
         data = {
@@ -402,6 +416,7 @@ class Game:
                 f"{y}-{x}": [bool(p.collected) for p in stage.potions]
                 for (y, x), stage in self.stages.items()
             },
+            "gate_toggle": self.gate_toggle,
         }
         save_slot(self.current_slot, data)
 
@@ -426,12 +441,8 @@ class Game:
         # デスアニメーション処理（カウントダウンし、終了時にリスポーン）
         self.death_timer -= 1
         if self.death_timer == 0:
-            # リスポーン処理
-            self.current_stage_index_x = self.player.save_point[1]
-            self.current_stage_index_y = self.player.save_point[0]
-            self.stages[
-                (self.current_stage_index_y, self.current_stage_index_x)
-            ].reset()
+            slot_data = load_slot(self.current_slot)
+            self._load_save_data(slot_data)
             self.player.revive()
 
     def draw_death_animation(self, shake=DEATH_SHAKE_AMPLITUDE):

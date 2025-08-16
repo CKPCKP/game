@@ -17,6 +17,10 @@ class FlagBlock(Block):
         super().__init__(x, y, width, height, collide_with_player, collide_with_laser)
         self.absorb_side = absorb_side
         self.absorbed = 0
+    
+    def update(self):
+        self.absorbed = 0
+        super().update()
 
     def draw(self, offset_x=0, offset_y=0):
         # 吸収面に応じたアクセント色を設定

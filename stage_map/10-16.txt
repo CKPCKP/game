@@ -1,16 +1,16 @@
 ########################
 ####vvvvvvvvvvvvvvvvv###
-###WYYYWXXXWYYYYWXXXXW##
+###WXXXWYYYWXXXXWYYYYW##
 ###W   W   W    W    W##
 ###W   W   W    W    W##
 ###W   W   W    W    W##
 ###W   W   W    W    W##
-###W   W   W    X    Y
-###W   W   Y    X    Y
-###W   W   Y    X    ###
-###W   W   Y    #    ###
-###W   X  ##    #    ###
-###W   X  ##    #    ###
+###W   W   W    Y    X
+###W   W   X    Y    X
+###W   W   X    Y    ###
+###W   W   X    #    ###
+###W   Y  ##    #    ###
+###W   Y  ##    #    ###
        #####    #    ###
  S     #####    #    ###
 ############    #    ###

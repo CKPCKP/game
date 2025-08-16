@@ -18,6 +18,7 @@ class App:
                 slot_index, slot_data = result
                 self.state = "game"
                 self.game = Game(self.input_mgr, slot_index, slot_data)
+                self.game.update()
         elif self.state == "game":
             finished = self.game.update()
             if finished:

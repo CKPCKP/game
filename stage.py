@@ -21,7 +21,6 @@ class Stage:
         self.parse_ascii_map(ascii_map)
 
     def parse_ascii_map(self, ascii_map):
-        absorbing_blocks = []
         for y, line in enumerate(ascii_map):
             for x, char in enumerate(line):
                 block_x = x * self.block_size
@@ -146,7 +145,6 @@ class Stage:
                             collide_with_laser="ABSORB",
                         )
                     self.collidables.append(absorbing_block)
-                    absorbing_blocks.append(absorbing_block)
                 elif char == "X":
                     self.collidables.append(
                         Gate(
@@ -156,7 +154,6 @@ class Stage:
                             self.block_size,
                             collidable_with_player=True,
                             collide_with_laser="ABSORB",
-                            linked_absorbing_blocks=absorbing_blocks,
                         )
                     )
                 elif char == "Y":
@@ -168,7 +165,6 @@ class Stage:
                             self.block_size,
                             collidable_with_player=True,
                             collide_with_laser="ABSORB",
-                            linked_absorbing_blocks=absorbing_blocks,
                             initial_exist=False,
                         )
                     )
@@ -179,9 +175,12 @@ class Stage:
                 elif char == "p":
                     self.potions.append(Potion(block_x, block_y, "can_shoot_laser"))
 
-    def update(self):
+    def update(self, gate_toggle=None):
         for collidable in self.collidables:
-            collidable.update()
+            if isinstance(collidable, Gate):
+                collidable.update(gate_toggle=gate_toggle)
+            else:
+                collidable.update()
         for potion in self.potions:
             potion.update()
 

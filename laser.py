@@ -172,7 +172,7 @@ class Laser:
                                     and block.y <= self.y <= bb
                                 )
                             ):
-                                block.absorbed += 1
+                                block.absorbed = True
                             pyxel.play(3, 61, loop=False, resume=True)
                         return temp_segments
 

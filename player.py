@@ -26,6 +26,7 @@ class Player:
         self.potion_effect_timer = 0
         self.potion_effect_type = None
         self.previous_frame_on_ground = True
+        self.animating = True
 
     def update(self, player_speed, jump_strength, gravity, max_gravity, collidables):
         if self.potion_effect_timer > 0:
@@ -148,9 +149,10 @@ class Player:
         self.erase_inactive_laser()
 
     def draw(self, offset_x=0, offset_y=0, look=None):
-        self.frame += 1
-        if self.frame >= 32:
-            self.frame = 0
+        if self.animating:
+            self.frame += 1
+            if self.frame >= 32:
+                self.frame = 0
         w = GRID_SIZE if self.direction == "RIGHT" else -GRID_SIZE
         v = 3
         if self.can_shoot_laser:
@@ -267,6 +269,7 @@ class Player:
                 and potion.y < player_bottom
                 and potion_bottom > self.y
             ):
+                self.animating = False
                 potion.on_collect(self)
                 self.collected_potions[potion] = "kari"
 

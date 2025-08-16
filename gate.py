@@ -12,29 +12,24 @@ class Gate(Block):
         height,
         collidable_with_player,
         collide_with_laser,
-        linked_absorbing_blocks,
         initial_exist=True,
     ):
         super().__init__(
             x, y, width, height, collidable_with_player, collide_with_laser
         )
-        self.linked_absorbing_blocks = linked_absorbing_blocks
         self.does_exist = initial_exist
         self.initial_exist = initial_exist
         self.height = GRID_SIZE
-        self.absorbed_judge = 0
 
-    def update(self):
-        absorbed_sum = sum([block.absorbed for block in self.linked_absorbing_blocks])
-        if absorbed_sum > self.absorbed_judge:
-            self.absorbed_judge = absorbed_sum
-            self.does_exist = self.does_exist ^ True
+    def update(self, gate_toggle = False):
+        self.does_exist = self.initial_exist ^ gate_toggle
         if self.does_exist:
             self.collide_with_laser = "ABSORB"
             self.collide_with_player = True
         else:
             self.collide_with_laser = "TRANSPARENT"
             self.collide_with_player = False
+        super().update()
 
     def draw(self, offset_x=0, offset_y=0):
         v = 3 if self.initial_exist else 4
